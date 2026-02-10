@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>에듀메이커 - 강의 배정 시스템</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background-color: #f8f9fa; padding: 40px; margin: 0; }
+        .admin-box { background: white; padding: 35px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); max-width: 550px; margin: 0 auto; }
+        h2 { color: #0056b3; border-bottom: 2px solid #0056b3; padding-bottom: 15px; margin-bottom: 30px; text-align: center; }
+        .input-group { margin-bottom: 18px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #444; font-size: 14px; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #0056b3; background-color: #f9fbff; }
+        input[readonly] { background-color: #f1f3f5; cursor: not-allowed; }
+        textarea { height: 80px; resize: none; font-family: inherit; }
+        
+        .btn-assign { width: 100%; padding: 16px; background-color: #0056b3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 17px; margin-top: 15px; transition: 0.3s; }
+        .btn-assign:hover { background-color: #004494; transform: translateY(-1px); }
+
+        /* 🔥 하단 버튼 그룹 스타일 */
+        .admin-footer-buttons { 
+            display: flex; 
+            gap: 10px; 
+            margin-top: 20px; 
+        }
+        .btn-status-link, .btn-list-link { 
+            flex: 1; 
+            padding: 14px; 
+            background-color: #f1f3f5; 
+            color: #495057; 
+            text-align: center; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            font-size: 14px; 
+            box-sizing: border-box; 
+            transition: 0.2s; 
+            border: 1px solid #e9ecef;
+        }
+        .btn-status-link:hover, .btn-list-link:hover { 
+            background-color: #e9ecef; 
+            color: #0056b3; 
+            border-color: #ced4da;
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-box">
+    <h2>EDUMAKER 배정 시스템</h2>
+    
+    <div class="input-group">
+        <label>강사 성함</label>
+        <select id="teacherSelect" onchange="autoFillEmail()">
+            <option value="">강사님을 선택하세요</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label>강사 이메일 (자동)</label>
+        <input type="email" id="teacherEmail" readonly placeholder="강사님을 선택하면 자동 입력됩니다">
+    </div>
+
+    <div class="input-group">
+        <label>강의처 (학교/기관명)</label>
+        <input type="text" id="client" placeholder="예: 포항초등학교">
+    </div>
+
+    <div class="input-group">
+        <label>강좌명</label>
+        <input type="text" id="subject" placeholder="예: 생성형 AI 캠프">
+    </div>
+
+    <div class="input-group">
+        <label>역할</label>
+        <select id="role">
+            <option value="주강사">주강사</option>
+            <option value="보조강사">보조강사</option>
+            <option value="안전요원">안전요원</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label>교육 일자</label>
+        <input type="date" id="educationDate">
+    </div>
+
+    <div class="input-group">
+        <label>교육 시간 (상세)</label>
+        <input type="text" id="educationTime" placeholder="예: 13:00 ~ 15:00">
+    </div>
+
+    <div class="input-group">
+        <label>비고 (기타 전달사항)</label>
+        <textarea id="note" placeholder="추가 전달사항을 입력하세요."></textarea>
+    </div>
+
+    <div class="input-group">
+        <label>총 강의 시간</label>
+        <input type="number" id="classHours" placeholder="예: 4">
+    </div>
+
+    <div class="input-group">
+        <label>시간당 강사료</label>
+        <input type="number" id="hourlyRate" placeholder="예: 50000">
+    </div>
+
+    <div class="input-group">
+        <label>서비스이용료 (%)</label>
+        <input type="number" id="commissionRate" placeholder="예: 10" value="10">
+    </div>
+
+    <button class="btn-assign" onclick="handleAssignment()">강의 배정하기</button>
+    
+    <div class="admin-footer-buttons">
+        <a href="status.html" target="_blank" class="btn-status-link">📋 배정 현황 확인</a>
+        <a href="teacher_list.html" target="_blank" class="btn-list-link">👥 강사 목록 관리</a>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDKA0GjAlOF826TZl49y67H4oz8nMW_Jbw",
+        authDomain: "edumaker-teacher-d97ba.firebaseapp.com",
+        projectId: "edumaker-teacher-d97ba",
+        storageBucket: "edumaker-teacher-d97ba.firebasestorage.app",
+        messagingSenderId: "532708143359",
+        appId: "1:532708143359:web:89b9933da4c868127ddcca",
+        measurementId: "G-JJ1TF77VBJ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let teachersData = []; 
+
+    async function fetchTeachers() {
+        const teacherSelect = document.getElementById('teacherSelect');
+        try {
+            const querySnapshot = await getDocs(collection(db, "users"));
+            querySnapshot.forEach((doc) => {
+                const userData = doc.data();
+                if(userData.name && userData.email) {
+                    teachersData.push(userData);
+                    const option = document.createElement('option');
+                    option.value = userData.name;
+                    option.text = userData.name;
+                    teacherSelect.appendChild(option);
+                }
+            });
+        } catch (error) {
+            console.error("강사 명단 로드 오류:", error);
+        }
+    }
+    fetchTeachers();
+
+    window.autoFillEmail = function() {
+        const selectedName = document.getElementById('teacherSelect').value;
+        const emailInput = document.getElementById('teacherEmail');
+        const teacher = teachersData.find(t => t.name === selectedName);
+        emailInput.value = teacher ? teacher.email : "";
+    }
+
+    window.handleAssignment = async function() {
+        const name = document.getElementById('teacherSelect').value;
+        const email = document.getElementById('teacherEmail').value;
+        const client = document.getElementById('client').value;
+        const subject = document.getElementById('subject').value;
+        const role = document.getElementById('role').value;
+        const eduDate = document.getElementById('educationDate').value;
+        const eduTime = document.getElementById('educationTime').value;
+        const note = document.getElementById('note').value;
+        const classHours = document.getElementById('classHours').value;
+        const hourlyRate = document.getElementById('hourlyRate').value;
+        const commissionRate = document.getElementById('commissionRate').value;
+
+        if(!name || !client || !subject || !eduDate || !eduTime || !classHours || !hourlyRate) {
+            alert("필수 필드를 모두 입력해 주세요.");
+            return;
+        }
+
+        try {
+            const totalGrossPay = Number(classHours) * Number(hourlyRate);
+            const calculatedServiceFee = Math.floor(totalGrossPay * (Number(commissionRate) / 100));
+
+            /* [DB 필드 저장 가이드]
+               1. teacherName, 2. teacherEmail, 3. client, 4. subject, 5. role, 
+               6. date, 7. time, 8. note, 9. classHours, 10. hourlyRate, 
+               11. commissionRate, 12. serviceFee, 13. status, 14. createdAt, 
+               15. isPaidTeacher, 16. isPaidService 
+            */
+
+            await addDoc(collection(db, "assignments"), {
+                teacherName: name,
+                teacherEmail: email,
+                client: client,
+                subject: subject,
+                role: role,
+                date: eduDate,
+                time: eduTime,
+                note: note,
+                classHours: Number(classHours),
+                hourlyRate: Number(hourlyRate),
+                commissionRate: Number(commissionRate), 
+                serviceFee: calculatedServiceFee,      
+                status: "배정완료",
+                createdAt: new Date(),
+                isPaidTeacher: false, 
+                isPaidService: false  
+            });
+
+            alert(name + " 강사님께 강의 배정이 완료되었습니다!");
+            location.reload(); 
+        } catch (error) {
+            alert("오류 발생: " + error.message);
+        }
+    }
+</script>
+</body>
+</html>

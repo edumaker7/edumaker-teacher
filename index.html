@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>에듀메이커 - 로그인</title>
+    <style>
+        /* 기존 스타일 동일 유지 */
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+            display: flex;
+            flex-direction: column; 
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .login-container {
+            background-color: #ffffff;
+            padding: 50px 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .logo { font-size: 32px; font-weight: 900; color: #0056b3; margin-bottom: 8px; letter-spacing: -1.5px; text-transform: uppercase; }
+        .sub-title { font-size: 15px; color: #868e96; margin-bottom: 40px; font-weight: 500; }
+        .input-group { text-align: left; margin-bottom: 20px; }
+        label { display: block; font-size: 13px; font-weight: 700; color: #495057; margin-bottom: 8px; margin-left: 4px; }
+        input { width: 100%; padding: 14px 16px; border: 1px solid #dee2e6; border-radius: 12px; font-size: 15px; box-sizing: border-box; transition: all 0.2s; background-color: #f8f9fa; }
+        input:focus { outline: none; border-color: #0056b3; background-color: #fff; box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.1); }
+        .btn-group { margin-top: 32px; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; }
+        .btn-login { background-color: #0056b3; color: white; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0, 86, 179, 0.2); }
+        .btn-login:hover { background-color: #004494; transform: translateY(-1px); box-shadow: 0 6px 15px rgba(0, 86, 179, 0.3); }
+        .btn-signup { background-color: transparent; color: #495057; border: 1px solid #dee2e6; font-size: 14px; margin-bottom: 16px; }
+        .btn-signup:hover { background-color: #f1f3f5; }
+        .btn-admin-mode { background-color: transparent; color: #adb5bd; font-size: 12px; font-weight: 400; text-decoration: underline; border: none; padding: 5px; }
+        .btn-admin-mode:hover { color: #868e96; }
+
+        .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #999; line-height: 1.8; }
+        .footer a { color: #888; text-decoration: none; margin: 0 5px; transition: color 0.2s; cursor: pointer; }
+        .footer a:hover { color: #0056b3; text-decoration: underline; }
+        .footer-divider { margin: 0 8px; color: #ddd; }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="logo">EDUMAKER</div>
+        <div class="sub-title">강사 전용 관리 시스템</div>
+
+        <div class="input-group">
+            <label for="email">이메일 주소</label>
+            <input type="email" id="email" placeholder="이메일을 입력하세요">
+        </div>
+
+        <div class="input-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" placeholder="비밀번호를 입력하세요">
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-login" onclick="handleLogin()">강사 로그인</button>
+            <button class="btn-signup" onclick="openSignup()">신규 강사 회원가입</button>
+            <button class="btn-admin-mode" onclick="handleAdminLogin()">관리자 모드 접속</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-links">
+            <a onclick="openPrivacyPopup()">개인정보처리방침</a>
+            <span class="footer-divider">|</span>
+            <a href="mailto:edumaker08@gmail.com">이메일 문의</a>
+            <span class="footer-divider">|</span>
+            <a href="http://pf.kakao.com/_xhSsRb" target="_blank">카카오톡 채널</a>
+        </div>
+        <div class="copyright">
+            © 2026 EDUMAKER. All Rights Reserved.
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDKA0GjAlOF826TZl49y67H4oz8nMW_Jbw",
+            authDomain: "edumaker-teacher-d97ba.firebaseapp.com",
+            projectId: "edumaker-teacher-d97ba",
+            storageBucket: "edumaker-teacher-d97ba.firebasestorage.app",
+            messagingSenderId: "532708143359",
+            appId: "1:532708143359:web:89b9933da4c868127ddcca",
+            measurementId: "G-JJ1TF77VBJ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // 🔥 개인정보처리방침 팝업 함수 추가
+        window.openPrivacyPopup = function() {
+            const width = 600;
+            const height = 800;
+            const left = (window.screen.width / 2) - (width / 2);
+            const top = (window.screen.height / 2) - (height / 2);
+            window.open('privacy.html', 'PrivacyPolicy', `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`);
+        }
+
+        window.handleAdminLogin = async function() {
+            const email = document.getElementById('email').value;
+            const pw = document.getElementById('password').value;
+            if (email === "help@edumaker.kr" && pw === "123456") {
+                try {
+                    await signInWithEmailAndPassword(auth, email, pw);
+                    alert("관리자 권한으로 접속합니다.");
+                    window.location.href = "admin.html";
+                } catch (error) { alert("인증 오류가 발생했습니다."); }
+            } else { alert("관리자 계정 정보가 일치하지 않습니다."); }
+        }
+
+        window.handleLogin = async function() {
+            const email = document.getElementById('email').value;
+            const pw = document.getElementById('password').value;
+            if(!email || !pw) { alert("정보를 입력해주세요."); return; }
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, pw);
+                if (userCredential.user.email === "help@edumaker.kr") {
+                    window.location.href = "admin.html";
+                } else {
+                    window.location.href = "teacher_main.html";
+                }
+            } catch (error) { alert("로그인 실패. 정보를 확인하세요."); }
+        }
+
+        window.openSignup = function() {
+            window.location.href = 'signup.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>에듀메이커</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
+        .header { background-color: #0056b3; color: white; padding: 20px; text-align: center; }
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .welcome-msg { font-size: 18px; margin-bottom: 25px; color: #333; font-weight: 600; display: inline-block; }
+        .assignment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 5px solid #0056b3; }
+        .card h3 { margin-top: 0; color: #0056b3; font-size: 20px; border-bottom: 1px solid #eee; padding-bottom: 12px; display: flex; align-items: center; }
+        .card h3::before { content: '🏫 '; margin-right: 5px; }
+        .card p { margin: 10px 0; font-size: 15px; color: #555; display: flex; align-items: flex-start; }
+        .card b { color: #333; width: 130px; flex-shrink: 0; }
+        .note-box { background-color: #fef9e7; border-left: 4px solid #f1c40f; padding: 12px; margin-top: 15px; font-size: 14px; border-radius: 4px; color: #666; line-height: 1.5; }
+        .pay-status-row { display: flex; gap: 8px; margin-top: 15px; }
+        .status-box { flex: 1; padding: 10px 5px; text-align: center; border-radius: 8px; font-weight: bold; font-size: 11px; transition: 0.3s; box-sizing: border-box; }
+        .status-waiting { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-complete { background-color: #e9ecef; color: #6c757d; border: 1px solid #dee2e6; }
+        .check-btn { width: 100%; padding: 14px; margin-top: 15px; background-color: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; line-height: 1.4; }
+        .check-btn small { display: block; font-size: 11px; font-weight: normal; opacity: 0.9; }
+        .confirmed-msg { display: block; margin-top: 15px; padding: 14px; text-align: center; background-color: #f8f9fa; color: #adb5bd; border-radius: 8px; font-weight: bold; font-size: 14px; }
+        .logout-btn { background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; float: right; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="header"><h1>EDUMAKER 강사 전용</h1></div>
+    <div class="container">
+        <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
+        <div id="welcome-text" class="welcome-msg">강사님 정보를 불러오는 중...</div>
+        <div id="assignment-list" class="assignment-grid"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, orderBy, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDKA0GjAlOF826TZl49y67H4oz8nMW_Jbw",
+            authDomain: "edumaker-teacher-d97ba.firebaseapp.com",
+            projectId: "edumaker-teacher-d97ba",
+            storageBucket: "edumaker-teacher-d97ba.firebasestorage.app",
+            messagingSenderId: "532708143359",
+            appId: "1:532708143359:web:89b9933da4c868127ddcca",
+            measurementId: "G-JJ1TF77VBJ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    /* [DB 필드 호출 가이드 - 'users' 컬렉션]
+                       1. email : 사용자 식별 이메일
+                       2. name  : 강사 실명 표시용
+                    */
+                    const userQuery = query(collection(db, "users"), where("email", "==", user.email));
+                    const userSnapshot = await getDocs(userQuery);
+                    let displayName = "강사";
+                    if (!userSnapshot.empty) {
+                        displayName = userSnapshot.docs[0].data().name;
+                    }
+                    document.getElementById('welcome-text').innerHTML = `✨ <b>${displayName}(${user.email})</b> 강사님, 환영합니다!`;
+                } catch (e) {
+                    document.getElementById('welcome-text').innerText = `✨ ${user.email} 강사님, 환영합니다!`;
+                }
+                listenAssignments(user.email);
+            } else { 
+                // 로그인 세션이 없으면 로그인 페이지로 이동
+                window.location.href = "index.html"; 
+            }
+        });
+
+        function listenAssignments(email) {
+            const listDiv = document.getElementById('assignment-list');
+            /* [DB 필드 가이드 - 'assignments' 컬렉션] 
+               본인 이메일(teacherEmail)과 일치하는 데이터만 실시간 감시
+            */
+            const q = query(collection(db, "assignments"), where("teacherEmail", "==", email), orderBy("createdAt", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                let html = "";
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const docId = docSnap.id;
+
+                    /* 호출 필드 상세 (admin.html 저장 기준)
+                       - client : 강의처
+                       - subject : 강좌명
+                       - role : 역할
+                       - date : 일자
+                       - time : 시간
+                       - classHours : 강의시간
+                       - hourlyRate : 시간당 강사료
+                       - serviceFee : 서비스 이용료
+                       - commissionRate : 수수료율
+                       - note : 비고
+                       - status : 확인완료 여부
+                       - isPaidTeacher : 강사료 정산여부
+                       - isPaidService : 서비스이용료 정산여부
+                    */
+                    
+                    const totalGrossPay = (data.classHours || 0) * (data.hourlyRate || 0);
+                    
+                    const teacherPaidClass = data.isPaidTeacher ? 'status-complete' : 'status-waiting';
+                    const teacherPaidText = data.isPaidTeacher ? '✅ 강사료 정산완료' : '⌛ 강사료 정산대기';
+                    const servicePaidClass = data.isPaidService ? 'status-complete' : 'status-waiting';
+                    const servicePaidText = data.isPaidService ? '✅ 서비스이용료 확인' : '⌛ 서비스이용료 대기';
+
+                    html += `
+                        <div class="card">
+                            <h3>${data.client}</h3>
+                            <p><b>📚 강좌명</b> <span>: ${data.subject}</span></p>
+                            <p><b>🎖️ 배정역할</b> <span>: ${data.role || '강사'}</span></p>
+                            <p><b>⏰ 교육일자</b> <span>: ${data.date}</span></p>
+                            <p><b>⏱️ 교육시간</b> <span>: ${data.time} (${data.classHours}시간)</span></p>
+                            <p><b>💰 시간당 강사료</b> <span>: ${Number(data.hourlyRate || 0).toLocaleString()}원</span></p>
+                            <p><b>💵 총 강사료</b> <span>: ${totalGrossPay.toLocaleString()}원</span></p>
+                            <p><b>🏷️ 서비스 이용료</b> <span>: -${(data.serviceFee || 0).toLocaleString()}원 (${data.commissionRate}%)</span></p>
+                            
+                            ${data.note ? `<div class="note-box"><b>📝 비고(기타)</b><br>${data.note.replace(/\n/g, '<br>')}</div>` : ''}
+
+                            <div class="pay-status-row">
+                                <div class="status-box ${teacherPaidClass}">
+                                    ${teacherPaidText}
+                                </div>
+                                <div class="status-box ${servicePaidClass}">
+                                    ${servicePaidText}
+                                </div>
+                            </div>
+
+                            ${data.status === '확인완료' 
+                                ? `<span class="confirmed-msg">👍 강의 배정 확인 완료</span>` 
+                                : `<button class="check-btn" onclick="confirmAssignment('${docId}')">
+                                    강의 배정 확인하기
+                                    <small>(배정된 강의 내용을 확인하셨다면 클릭해 주세요)</small>
+                                   </button>`}
+                        </div>
+                    `;
+                });
+                listDiv.innerHTML = html || '<div class="no-data">배정 내역이 없습니다.</div>';
+            });
+        }
+
+        window.confirmAssignment = async (docId) => {
+            if(!confirm("강의 배정 내용을 확인하셨습니까?")) return;
+            // status 필드를 '확인완료'로 업데이트
+            await updateDoc(doc(db, "assignments", docId), { status: "확인완료" });
+        }
+
+        // 🔥 로그아웃 후 index.html로 이동하도록 수정
+        window.handleLogout = () => signOut(auth).then(() => {
+            location.href = "index.html";
+        });
+    </script>
+</body>
+</html>

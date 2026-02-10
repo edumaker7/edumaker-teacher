@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>에듀메이커 - 강사 회원가입</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background-color: #f4f7f9; padding: 20px; margin: 0; }
+        .signup-container { background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); max-width: 450px; margin: 40px auto; }
+        .logo { font-size: 24px; font-weight: 800; color: #0056b3; text-align: center; margin-bottom: 25px; cursor: pointer; }
+        
+        .input-group { margin-bottom: 18px; }
+        label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 5px; }
+        .required { color: #d93025; margin-left: 2px; }
+        
+        input { 
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; 
+            box-sizing: border-box; font-size: 14px;
+        }
+        input:focus { outline: none; border-color: #0056b3; }
+
+        .privacy-agreement {
+            background-color: #f8f9fa; padding: 15px; border-radius: 8px; 
+            margin: 25px 0; border: 1px solid #eee;
+        }
+        .privacy-agreement label {
+            display: flex; align-items: flex-start; gap: 10px; 
+            cursor: pointer; font-weight: normal; font-size: 13px; line-height: 1.4;
+        }
+        .privacy-agreement input[type="checkbox"] { width: auto; margin-top: 3px; }
+        
+        .privacy-link { color: #0056b3; text-decoration: underline; font-weight: 600; cursor: pointer; }
+
+        .btn-signup {
+            width: 100%; padding: 15px; background-color: #0056b3; color: white;
+            border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer;
+        }
+        .btn-signup:hover { background-color: #004494; }
+        
+        .btn-back {
+            display: block; text-align: center; margin-top: 15px; color: #888;
+            text-decoration: none; font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="signup-container">
+    <div class="logo" onclick="location.href='index.html'">EDUMAKER</div>
+    
+    <div class="input-group">
+        <label>이메일주소(아이디) <span class="required">*</span></label>
+        <input type="email" id="email" placeholder="example@gmail.com">
+    </div>
+
+    <div class="input-group">
+        <label>비밀번호 <span class="required">*</span></label>
+        <input type="password" id="password" placeholder="6자리 이상 입력하세요">
+    </div>
+
+    <div class="input-group">
+        <label>비밀번호 확인 <span class="required">*</span></label>
+        <input type="password" id="passwordConfirm" placeholder="비밀번호를 한 번 더 입력하세요">
+    </div>
+
+    <div class="input-group">
+        <label>이름 <span class="required">*</span></label>
+        <input type="text" id="name" placeholder="성함을 입력하세요">
+    </div>
+
+    <div class="input-group">
+        <label>전화번호 <span class="required">*</span></label>
+        <input type="tel" id="phone" placeholder="010-0000-0000">
+    </div>
+
+    <div class="input-group">
+        <label>활동지역 <span class="required">*</span></label>
+        <input type="text" id="region" placeholder="예: 서울 강남구, 경기 수원시 등">
+    </div>
+
+    <div class="privacy-agreement">
+        <label>
+            <input type="checkbox" id="privacyCheck">
+            <span>
+                (필수) <a onclick="openPrivacyPopup()" class="privacy-link">개인정보처리방침</a>에 동의하며, 강의 배정을 위해 이름, 연락처 등이 수요처에 제공됨을 확인하였습니다.
+            </span>
+        </label>
+    </div>
+
+    <button class="btn-signup" onclick="handleSignup()">회원가입 완료</button>
+    <a href="index.html" class="btn-back">이미 계정이 있으신가요? 로그인하기</a>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDKA0GjAlOF826TZl49y67H4oz8nMW_Jbw",
+        authDomain: "edumaker-teacher-d97ba.firebaseapp.com",
+        projectId: "edumaker-teacher-d97ba",
+        storageBucket: "edumaker-teacher-d97ba.firebasestorage.app",
+        messagingSenderId: "532708143359",
+        appId: "1:532708143359:web:89b9933da4c868127ddcca",
+        measurementId: "G-JJ1TF77VBJ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    window.openPrivacyPopup = function() {
+        const width = 600;
+        const height = 800;
+        const left = (window.screen.width / 2) - (width / 2);
+        const top = (window.screen.height / 2) - (height / 2);
+        window.open('privacy.html', 'PrivacyPolicy', `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`);
+    }
+
+    window.handleSignup = async function() {
+        const email = document.getElementById('email').value;
+        const pw = document.getElementById('password').value;
+        const pwConfirm = document.getElementById('passwordConfirm').value;
+        const name = document.getElementById('name').value;
+        const phone = document.getElementById('phone').value;
+        const region = document.getElementById('region').value;
+        const privacyCheck = document.getElementById('privacyCheck').checked;
+
+        if(!email || !pw || !pwConfirm || !name || !phone || !region) {
+            alert("모든 필수 항목(*)을 입력해 주세요.");
+            return;
+        }
+
+        if(pw !== pwConfirm) {
+            alert("비밀번호가 일치하지 않습니다. 다시 확인해 주세요.");
+            document.getElementById('passwordConfirm').focus();
+            return;
+        }
+
+        if(!privacyCheck) {
+            alert("개인정보처리방침에 동의해 주세요.");
+            return;
+        }
+
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, pw);
+            const user = userCredential.user;
+
+            /* [데이터베이스 필드 가이드 - Firestore 'users' 컬렉션]
+              저장되는 정보와 데이터베이스 상의 필드명(Key) 리스트입니다.
+              1. email        : 강사 이메일 (계정 아이디)
+              2. name         : 강사 성함
+              3. phone        : 연락처
+              4. region       : 주요 활동 지역
+              5. createdAt    : 가입 날짜 및 시간 (서버 타임스탬프)
+              6. agreePrivacy : 개인정보처리방침 동의 여부 (boolean)
+            */
+
+            await setDoc(doc(db, "users", user.uid), {
+                email: email,        // DB 필드명: email
+                name: name,          // DB 필드명: name
+                phone: phone,        // DB 필드명: phone
+                region: region,      // DB 필드명: region
+                createdAt: new Date(), // DB 필드명: createdAt
+                agreePrivacy: true   // DB 필드명: agreePrivacy
+            });
+
+            alert("회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.");
+            window.location.href = "index.html"; 
+        } catch (error) {
+            if(error.code === 'auth/email-already-in-use') {
+                alert("이미 사용 중인 이메일입니다.");
+            } else if(error.code === 'auth/weak-password') {
+                alert("비밀번호가 너무 취약합니다. 6자리 이상 입력해 주세요.");
+            } else {
+                alert("가입 실패: " + error.message);
+            }
+        }
+    }
+</script>
+</body>
+</html>
