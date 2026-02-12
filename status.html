@@ -5,47 +5,58 @@
     <title>에듀메이커 - 배정 현황 및 정산 관리</title>
     <style>
         body { font-family: 'Pretendard', sans-serif; background-color: #f0f4f8; padding: 40px; margin: 0; }
-        .list-container { max-width: 1450px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+        .list-container { max-width: 1600px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
         
-        /* 상단 헤더 영역 */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #f1f3f5; padding-bottom: 20px; }
         .logo { font-size: 24px; font-weight: 800; color: #0056b3; cursor: pointer; text-decoration: none; }
         h2 { color: #1a1a1a; margin: 0; font-size: 22px; }
         
-        /* 필터 바 */
         .filter-bar { margin-bottom: 25px; display: flex; align-items: center; gap: 20px; background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef; }
         .filter-item { display: flex; align-items: center; gap: 8px; }
         .filter-bar select { padding: 10px 15px; border-radius: 6px; border: 1px solid #ced4da; font-size: 14px; background-color: white; }
         
-        /* 테이블 스타일 */
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th, td { border-bottom: 1px solid #eee; padding: 12px; text-align: left; font-size: 13px; vertical-align: middle; }
-        th { background-color: #fcfcfc; color: #495057; font-weight: 700; }
+        th, td { border-bottom: 1px solid #eee; padding: 14px 10px; text-align: left; font-size: 13px; vertical-align: top; word-break: keep-all; word-wrap: break-word; }
         
-        th:nth-child(1) { width: 90px; }  /* 교육일자 */
-        th:nth-child(2) { width: 110px; } /* 이름(역할) */
-        th:nth-child(3) { width: 130px; } /* 강의처 */
-        th:nth-child(4) { width: 180px; } /* 강좌명 */
-        th:nth-child(7) { width: 100px; } /* 강사료(총) */
-        th:nth-child(8) { width: 100px; } /* 수수료 */
+        th { background-color: #fcfcfc; color: #495057; font-weight: 700; border-top: 2px solid #0056b3; line-height: 1.5; }
         
-        .wrap-text { white-space: normal; word-break: break-all; line-height: 1.4; color: #444; }
-        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+        th:nth-child(1) { width: 160px; } /* 교육일자/시간 */
+        th:nth-child(2) { width: 160px; } /* 이름/이메일 */
+        th:nth-child(3) { width: 170px; } /* 강의처/강좌명 */
+        th:nth-child(4) { width: 80px; }  /* 역할 */
+        th:nth-child(5) { width: 110px; } /* 강의시간/시급 */
+        th:nth-child(6) { width: 130px; } /* 추가비용/합계 */
+        th:nth-child(7) { width: 100px; } /* 서비스이용료 */
+        th:nth-child(8) { width: 120px; } /* 비고 */
+
+        .schedule-item { margin-bottom: 8px; border-bottom: 1px dashed #f1f3f5; padding-bottom: 4px; }
+        .schedule-item:last-child { border-bottom: none; }
+        .date-part { font-weight: bold; color: #333; display: block; }
+        .time-part { color: #0056b3; font-size: 12px; display: block; margin-top: 2px; }
+
+        .text-main { font-weight: bold; color: #333; display: block; margin-bottom: 3px; line-height: 1.3; }
+        .text-sub { font-size: 12px; color: #888; display: block; line-height: 1.3; }
+
+        .money-total { font-weight: bold; color: #d93025; font-size: 13px; display: block; }
+        .money-add { font-size: 11px; color: #28a745; display: block; margin-bottom: 2px; }
+
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; display: inline-block; }
         .status-wait { background: #fff3cd; color: #856404; }
         .status-ok { background: #d4edda; color: #155724; }
         
-        .chk-group { display: flex; flex-direction: column; gap: 4px; font-size: 11px; }
-        .btn-edit { padding: 5px 10px; background-color: #0056b3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 3px; }
-        .btn-delete { padding: 5px 10px; background-color: #ff4d4f; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .chk-group { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+        .chk-group label { display: flex; align-items: center; cursor: pointer; }
+        .chk-group input { margin-right: 5px; }
+
+        .btn-group { display: flex; gap: 4px; flex-wrap: wrap; }
+        .btn-edit { padding: 6px 10px; background-color: #0056b3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .btn-delete { padding: 6px 10px; background-color: #ff4d4f; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; }
 
         .btn-back {
             background-color: #0056b3; color: white; text-decoration: none; padding: 10px 22px;
             border-radius: 8px; font-size: 14px; font-weight: 600; transition: background 0.2s;
         }
         .btn-back:hover { background-color: #004494; }
-
-        .fee-amount { color: #d93025; font-weight: 600; display: block; }
-        .fee-rate { color: #888; font-size: 11px; display: block; margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -75,14 +86,13 @@
     <table>
         <thead>
             <tr>
-                <th>교육일자</th>
-                <th>이름(역할)</th>
-                <th>강의처</th>
-                <th>강좌명</th>
-                <th>강의시간</th>
-                <th>시간당 강사료</th>
-                <th>강사료(총)</th>
-                <th>수수료</th>
+                <th>교육일자<br>교육시간</th>
+                <th>이름<br>이메일</th>
+                <th>강의처<br>강좌명</th>
+                <th>역할</th>
+                <th>강의시간<br>시간당 강사료</th>
+                <th>추가비용<br>총 합계</th>
+                <th>서비스 이용료<br>(수수료율)</th>
                 <th>비고</th>
                 <th>강사확인</th>
                 <th>상세 정산 처리</th>
@@ -90,7 +100,7 @@
             </tr>
         </thead>
         <tbody id="admin-list-body">
-            <tr><td colspan="12" style="text-align:center; padding:40px;">데이터를 불러오는 중...</td></tr>
+            <tr><td colspan="11" style="text-align:center; padding:40px;">데이터를 불러오는 중...</td></tr>
         </tbody>
     </table>
 </div>
@@ -99,7 +109,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, query, orderBy, limit, onSnapshot, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Firebase 설정
     const firebaseConfig = {
         apiKey: "AIzaSyDKA0GjAlOF826TZl49y67H4oz8nMW_Jbw",
         authDomain: "edumaker-teacher-d97ba.firebaseapp.com",
@@ -115,68 +124,36 @@
 
     let allAssignments = [];
 
-    /* [DB 필드 호출 안내 - 'assignments' 컬렉션] 
-       1. date           : 교육 일자
-       2. teacherName    : 강사 성함
-       3. client         : 강의처 (학교/기관)
-       4. subject        : 강좌명
-       5. role           : 역할 (주강사 등)
-       6. classHours     : 총 강의 시간
-       7. hourlyRate    : 시간당 강사료
-       8. serviceFee     : 서비스 이용료
-       9. commissionRate : 수수료율
-       10. status        : 확인 상태
-       11. isPaidTeacher : 강사 정산 여부
-       12. isPaidService : 서비스이용료 정산 여부
-    */
-
+    // 정산 상태 체크박스 업데이트
     window.updatePayStatus = async function(docId, field, isChecked) {
         try {
             await updateDoc(doc(db, "assignments", docId), { [field]: isChecked });
-        } catch (error) {
-            alert("업데이트 실패");
-        }
+        } catch (error) { alert("업데이트 실패"); }
     }
 
-    window.editAssignment = async function(docId) {
-        const item = allAssignments.find(a => a.id === docId);
-        if(!item) return;
-        const data = item.data;
-
-        const newDate = prompt("교육 일자 (YYYY-MM-DD):", data.date) || data.date;
-        const newTime = prompt("상세 시간:", data.time) || data.time;
-        const newRole = prompt("역할:", data.role || '주강사') || data.role;
-        const newHours = prompt("강의 시간 (숫자):", data.classHours) || data.classHours;
-        const newRate = prompt("시간당 강사료 (숫자):", data.hourlyRate) || data.hourlyRate;
-        const newComm = prompt("서비스이용료율 (%):", data.commissionRate || 10) || (data.commissionRate || 10);
-        const newNote = prompt("비고:", data.note || "") || (data.note || "");
-
-        try {
-            const h = Number(newHours);
-            const r = Number(newRate);
-            const c = Number(newComm);
-            const fee = Math.floor((h * r) * (c / 100));
-
-            await updateDoc(doc(db, "assignments", docId), {
-                date: newDate, time: newTime, role: newRole, classHours: h,
-                hourlyRate: r, commissionRate: c, serviceFee: fee, note: newNote, status: "배정완료"
-            });
-            alert("수정 완료");
-        } catch (error) {
-            alert("수정 실패");
-        }
+    // 🔥 [수정] 수정 버튼 클릭 시 edit.html 팝업창을 띄우는 함수
+    window.editAssignment = function(docId) {
+        const width = 750;
+        const height = 850;
+        const left = (window.screen.width / 2) - (width / 2);
+        const top = (window.screen.height / 2) - (height / 2);
+        
+        // 팝업창 실행
+        window.open(
+            `edit.html?id=${docId}`, 
+            '강의내용수정', 
+            `width=${width}, height=${height}, left=${left}, top=${top}, scrollbars=yes, resizable=yes`
+        );
     }
 
-    // 🔥 삭제 함수: 상세 정보를 확인창에 표시
+    // 삭제 함수
     window.deleteAssignment = async function(docId, subject, teacher, client, date) {
         if (!confirm(`[확인] 아래 내역을 삭제하시겠습니까?\n\n- 교육일자: ${date}\n- 강사: ${teacher}\n- 강의처: ${client}\n- 강좌명: ${subject}`)) return;
-        try {
-            await deleteDoc(doc(db, "assignments", docId));
-        } catch (error) {
-            alert("삭제 중 오류가 발생했습니다.");
-        }
+        try { await deleteDoc(doc(db, "assignments", docId)); } 
+        catch (error) { alert("삭제 중 오류가 발생했습니다."); }
     }
 
+    // 필터링 기능
     window.filterAssignments = function() {
         const teacherSel = document.getElementById('teacherFilter').value;
         const clientSel = document.getElementById('clientFilter').value;
@@ -186,33 +163,63 @@
             const matchClient = (clientSel === "all" || item.data.client === clientSel);
             return matchTeacher && matchClient;
         });
-
         renderList(filtered);
     }
 
+    // 목록 렌더링 함수
     function renderList(dataList) {
         const listBody = document.getElementById('admin-list-body');
         let html = "";
         
         dataList.forEach((item) => {
             const data = item.data;
-            const totalPay = (data.classHours || 0) * (data.hourlyRate || 0);
+            const classHours = Number(data.classHours || 0);
+            const hourlyRate = Number(data.hourlyRate || 0);
+            const additionalCost = Number(data.additionalCost || 0);
+            const commissionRate = Number(data.commissionRate || 0);
+
+            const lectureFee = classHours * hourlyRate;
+            const totalPay = lectureFee + additionalCost; 
+            const serviceFee = data.serviceFee || 0;
             const isConfirmed = data.status === '확인완료';
+
+            const dates = data.date ? data.date.split(', ') : [];
+            const times = data.time ? data.time.split(', ') : [];
+            let scheduleHtml = "";
+            dates.forEach((d, i) => {
+                const t = times[i] || '';
+                scheduleHtml += `
+                    <div class="schedule-item">
+                        <span class="date-part">${d}</span>
+                        <span class="time-part">${t}</span>
+                    </div>`;
+            });
 
             html += `
                 <tr>
-                    <td>${data.date}</td>
-                    <td><b>${data.teacherName}</b><br><small>(${data.role || '강사'})</small></td>
-                    <td>${data.client}</td>
-                    <td class="wrap-text">${data.subject}</td>
-                    <td>${data.classHours || 0}시간</td>
-                    <td>${(data.hourlyRate || 0).toLocaleString()}원</td>
-                    <td style="font-weight:bold;">${totalPay.toLocaleString()}원</td>
+                    <td>${scheduleHtml}</td>
                     <td>
-                        <span class="fee-amount">-${(data.serviceFee || 0).toLocaleString()}원</span>
-                        <span class="fee-rate">(${data.commissionRate || 0}%)</span>
+                        <span class="text-main">${data.teacherName}</span>
+                        <span class="text-sub">${data.teacherEmail}</span>
                     </td>
-                    <td class="wrap-text">${data.note || '-'}</td>
+                    <td>
+                        <span class="text-main">${data.client}</span>
+                        <span class="text-sub">${data.subject}</span>
+                    </td>
+                    <td>${data.role || '강사'}</td>
+                    <td>
+                        <span class="text-main">${classHours}시간</span>
+                        <span class="text-sub">${hourlyRate.toLocaleString()}원</span>
+                    </td>
+                    <td>
+                        ${additionalCost > 0 ? `<span class="money-add">+${additionalCost.toLocaleString()} (추가)</span>` : ''}
+                        <span class="money-total">${totalPay.toLocaleString()}원</span>
+                    </td>
+                    <td>
+                        <span class="text-main">${serviceFee.toLocaleString()}원</span>
+                        <span class="text-sub">(${commissionRate}%)</span>
+                    </td>
+                    <td><span class="text-sub" style="font-size:12px;">${data.note || '-'}</span></td>
                     <td><span class="status-badge ${isConfirmed ? 'status-ok' : 'status-wait'}">${isConfirmed ? '확인완료' : '확인대기'}</span></td>
                     <td>
                         <div class="chk-group">
@@ -221,13 +228,15 @@
                         </div>
                     </td>
                     <td>
-                        <button class="btn-edit" onclick="editAssignment('${item.id}')">수정</button>
-                        <button class="btn-delete" onclick="deleteAssignment('${item.id}', '${data.subject}', '${data.teacherName}', '${data.client}', '${data.date}')">삭제</button>
+                        <div class="btn-group">
+                            <button class="btn-edit" onclick="editAssignment('${item.id}')">수정</button>
+                            <button class="btn-delete" onclick="deleteAssignment('${item.id}', '${data.subject}', '${data.teacherName}', '${data.client}', '${data.date}')">삭제</button>
+                        </div>
                     </td>
                 </tr>
             `;
         });
-        listBody.innerHTML = html || '<tr><td colspan="12" style="text-align:center;">내역 없음</td></tr>';
+        listBody.innerHTML = html || '<tr><td colspan="11" style="text-align:center; padding:30px;">내역 없음</td></tr>';
     }
 
     const q = query(collection(db, "assignments"), orderBy("createdAt", "desc"), limit(100));

@@ -3,41 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>에듀메이커</title>
+    <title>에듀메이커 - 강사 전용</title>
     <style>
         body { font-family: 'Pretendard', sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
         .header { background-color: #0056b3; color: white; padding: 20px; text-align: center; }
-        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
-        .welcome-msg { font-size: 18px; margin-bottom: 25px; color: #333; font-weight: 600; display: inline-block; }
+        .container { max-width: 900px; margin: 20px auto; padding: 0 20px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .welcome-msg { font-size: 16px; color: #333; margin: 0; font-weight: 600; }
+        .view-toggle { display: flex; background: #e9ecef; border-radius: 8px; padding: 4px; }
+        .toggle-btn { border: none; background: none; padding: 8px 12px; font-size: 13px; cursor: pointer; border-radius: 6px; font-weight: bold; color: #666; }
+        .toggle-btn.active { background: #fff; color: #0056b3; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
         .assignment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 5px solid #0056b3; }
+        .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 5px solid #0056b3; position: relative; }
         .card h3 { margin-top: 0; color: #0056b3; font-size: 20px; border-bottom: 1px solid #eee; padding-bottom: 12px; display: flex; align-items: center; }
-        .card h3::before { content: '🏫 '; margin-right: 5px; }
-        .card p { margin: 10px 0; font-size: 15px; color: #555; display: flex; align-items: flex-start; }
-        .card b { color: #333; width: 130px; flex-shrink: 0; }
-        .note-box { background-color: #fef9e7; border-left: 4px solid #f1c40f; padding: 12px; margin-top: 15px; font-size: 14px; border-radius: 4px; color: #666; line-height: 1.5; }
+        .card h3::before { content: '🏫 '; }
+        
+        /* 🔥 업데이트 배지 스타일 */
+        .upd-badge { background: #d93025; color: white; font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
+        
+        .card p { margin: 8px 0; font-size: 15px; color: #555; display: flex; align-items: flex-start; }
+        .card b { color: #333; width: 130px; flex-shrink: 0; } 
+        .card span { flex: 1; word-break: keep-all; }
+
+        /* 🔥 하이라이트 스타일 (업데이트된 항목 강조) */
+        .highlight { color: #0056b3 !important; font-weight: bold; background: #e7f1ff; border-radius: 4px; padding: 2px 4px; }
+
+        .schedule-list { background-color: #f8f9fa; padding: 10px; border-radius: 8px; margin: 5px 0 15px 0; font-size: 14px; }
+        .schedule-item { margin-bottom: 4px; display: flex; gap: 10px; }
+        .sc-date { font-weight: bold; color: #0056b3; }
+        .divider { border-top: 1px dashed #ddd; margin: 15px 0; }
+        .total-pay { color: #d93025; font-weight: bold; font-size: 1.1em; }
+        .note-box { background-color: #fef9e7; border-left: 4px solid #f1c40f; padding: 12px; margin-top: 15px; font-size: 14px; color: #666; line-height: 1.5; }
         .pay-status-row { display: flex; gap: 8px; margin-top: 15px; }
-        .status-box { flex: 1; padding: 10px 5px; text-align: center; border-radius: 8px; font-weight: bold; font-size: 11px; transition: 0.3s; box-sizing: border-box; }
+        .status-box { flex: 1; padding: 10px 5px; text-align: center; border-radius: 8px; font-weight: bold; font-size: 11px; }
         .status-waiting { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-complete { background-color: #e9ecef; color: #6c757d; border: 1px solid #dee2e6; }
-        .check-btn { width: 100%; padding: 14px; margin-top: 15px; background-color: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; line-height: 1.4; }
-        .check-btn small { display: block; font-size: 11px; font-weight: normal; opacity: 0.9; }
+        .check-btn { width: 100%; padding: 14px; margin-top: 15px; background-color: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; }
         .confirmed-msg { display: block; margin-top: 15px; padding: 14px; text-align: center; background-color: #f8f9fa; color: #adb5bd; border-radius: 8px; font-weight: bold; font-size: 14px; }
-        .logout-btn { background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; float: right; font-size: 14px; }
+        .logout-btn { background: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+
+        /* 리스트형 스타일 */
+        .list-container { display: flex; flex-direction: column; gap: 10px; }
+        .list-item { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 5px solid #ccc; }
+        .list-header { padding: 15px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+        .lh-info { flex: 1; }
+        .lh-date { font-size: 12px; color: #888; font-weight: bold; }
+        .lh-title { font-size: 16px; font-weight: bold; color: #333; }
+        .lh-status { font-size: 12px; padding: 4px 8px; border-radius: 12px; margin-left: 10px; }
+        .st-wait { background: #fff3cd; color: #856404; }
+        .st-ok { background: #d4edda; color: #155724; }
+        .list-body { display: none; padding: 0 15px 15px 15px; border-top: 1px solid #eee; background-color: #fafafa; }
     </style>
 </head>
 <body>
     <div class="header"><h1>EDUMAKER 강사 전용</h1></div>
     <div class="container">
-        <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
-        <div id="welcome-text" class="welcome-msg">강사님 정보를 불러오는 중...</div>
-        <div id="assignment-list" class="assignment-grid"></div>
+        <div class="top-bar">
+            <div id="welcome-text" class="welcome-msg">정보 로딩 중...</div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div class="view-toggle">
+                    <button class="toggle-btn active" id="btn-card" onclick="changeView('card')">🗂️ 카드형</button>
+                    <button class="toggle-btn" id="btn-list" onclick="changeView('list')">☰ 리스트형</button>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
+            </div>
+        </div>
+        <div id="card-view-container" class="assignment-grid"></div>
+        <div id="list-view-container" class="list-container" style="display:none;"></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, query, where, getDocs, orderBy, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDKA0GjAlOF826TZl49y67H4oz8nMW_Jbw",
@@ -52,112 +91,91 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        let assignmentsData = [];
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                try {
-                    /* [DB 필드 호출 가이드 - 'users' 컬렉션]
-                       1. email : 사용자 식별 이메일
-                       2. name  : 강사 실명 표시용
-                    */
-                    const userQuery = query(collection(db, "users"), where("email", "==", user.email));
-                    const userSnapshot = await getDocs(userQuery);
-                    let displayName = "강사";
-                    if (!userSnapshot.empty) {
-                        displayName = userSnapshot.docs[0].data().name;
-                    }
-                    document.getElementById('welcome-text').innerHTML = `✨ <b>${displayName}(${user.email})</b> 강사님, 환영합니다!`;
-                } catch (e) {
-                    document.getElementById('welcome-text').innerText = `✨ ${user.email} 강사님, 환영합니다!`;
-                }
+                const qUser = query(collection(db, "users"), where("email", "==", user.email));
+                const snap = await getDocs(qUser);
+                let dName = snap.empty ? "강사" : snap.docs[0].data().name;
+                document.getElementById('welcome-text').innerHTML = `✨ <b>${dName}(${user.email})</b> 강사님, 환영합니다!`;
                 listenAssignments(user.email);
-            } else { 
-                // 로그인 세션이 없으면 로그인 페이지로 이동
-                window.location.href = "index.html"; 
-            }
+            } else location.href = "index.html";
         });
 
         function listenAssignments(email) {
-            const listDiv = document.getElementById('assignment-list');
-            /* [DB 필드 가이드 - 'assignments' 컬렉션] 
-               본인 이메일(teacherEmail)과 일치하는 데이터만 실시간 감시
-            */
             const q = query(collection(db, "assignments"), where("teacherEmail", "==", email), orderBy("createdAt", "desc"));
-            
             onSnapshot(q, (snapshot) => {
-                let html = "";
-                snapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    const docId = docSnap.id;
-
-                    /* 호출 필드 상세 (admin.html 저장 기준)
-                       - client : 강의처
-                       - subject : 강좌명
-                       - role : 역할
-                       - date : 일자
-                       - time : 시간
-                       - classHours : 강의시간
-                       - hourlyRate : 시간당 강사료
-                       - serviceFee : 서비스 이용료
-                       - commissionRate : 수수료율
-                       - note : 비고
-                       - status : 확인완료 여부
-                       - isPaidTeacher : 강사료 정산여부
-                       - isPaidService : 서비스이용료 정산여부
-                    */
-                    
-                    const totalGrossPay = (data.classHours || 0) * (data.hourlyRate || 0);
-                    
-                    const teacherPaidClass = data.isPaidTeacher ? 'status-complete' : 'status-waiting';
-                    const teacherPaidText = data.isPaidTeacher ? '✅ 강사료 정산완료' : '⌛ 강사료 정산대기';
-                    const servicePaidClass = data.isPaidService ? 'status-complete' : 'status-waiting';
-                    const servicePaidText = data.isPaidService ? '✅ 서비스이용료 확인' : '⌛ 서비스이용료 대기';
-
-                    html += `
-                        <div class="card">
-                            <h3>${data.client}</h3>
-                            <p><b>📚 강좌명</b> <span>: ${data.subject}</span></p>
-                            <p><b>🎖️ 배정역할</b> <span>: ${data.role || '강사'}</span></p>
-                            <p><b>⏰ 교육일자</b> <span>: ${data.date}</span></p>
-                            <p><b>⏱️ 교육시간</b> <span>: ${data.time} (${data.classHours}시간)</span></p>
-                            <p><b>💰 시간당 강사료</b> <span>: ${Number(data.hourlyRate || 0).toLocaleString()}원</span></p>
-                            <p><b>💵 총 강사료</b> <span>: ${totalGrossPay.toLocaleString()}원</span></p>
-                            <p><b>🏷️ 서비스 이용료</b> <span>: -${(data.serviceFee || 0).toLocaleString()}원 (${data.commissionRate}%)</span></p>
-                            
-                            ${data.note ? `<div class="note-box"><b>📝 비고(기타)</b><br>${data.note.replace(/\n/g, '<br>')}</div>` : ''}
-
-                            <div class="pay-status-row">
-                                <div class="status-box ${teacherPaidClass}">
-                                    ${teacherPaidText}
-                                </div>
-                                <div class="status-box ${servicePaidClass}">
-                                    ${servicePaidText}
-                                </div>
-                            </div>
-
-                            ${data.status === '확인완료' 
-                                ? `<span class="confirmed-msg">👍 강의 배정 확인 완료</span>` 
-                                : `<button class="check-btn" onclick="confirmAssignment('${docId}')">
-                                    강의 배정 확인하기
-                                    <small>(배정된 강의 내용을 확인하셨다면 클릭해 주세요)</small>
-                                   </button>`}
-                        </div>
-                    `;
-                });
-                listDiv.innerHTML = html || '<div class="no-data">배정 내역이 없습니다.</div>';
+                assignmentsData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderAssignments();
             });
         }
 
-        window.confirmAssignment = async (docId) => {
-            if(!confirm("강의 배정 내용을 확인하셨습니까?")) return;
-            // status 필드를 '확인완료'로 업데이트
-            await updateDoc(doc(db, "assignments", docId), { status: "확인완료" });
+        window.changeView = (mode) => {
+            document.getElementById('card-view-container').style.display = mode === 'card' ? 'grid' : 'none';
+            document.getElementById('list-view-container').style.display = mode === 'list' ? 'flex' : 'none';
+            document.getElementById('btn-card').className = `toggle-btn ${mode==='card'?'active':''}`;
+            document.getElementById('btn-list').className = `toggle-btn ${mode==='list'?'active':''}`;
         }
 
-        // 🔥 로그아웃 후 index.html로 이동하도록 수정
-        window.handleLogout = () => signOut(auth).then(() => {
-            location.href = "index.html";
-        });
+        function renderAssignments() {
+            const cardCon = document.getElementById('card-view-container');
+            const listCon = document.getElementById('list-view-container');
+            let cardHtml = ""; let listHtml = "";
+
+            assignmentsData.forEach(data => {
+                const lectureFee = Number(data.classHours) * Number(data.hourlyRate);
+                const totalGrossPay = lectureFee + Number(data.additionalCost || 0);
+                const serviceFee = Math.floor(lectureFee * (Number(data.commissionRate) / 100));
+                
+                // 🔥 업데이트 강조 로직
+                const isConfirmed = data.status === '확인완료';
+                const showUpd = data.isUpdated && !isConfirmed; // 수정되었고 아직 확인 안 한 경우
+                const updBadge = showUpd ? `<span class="upd-badge">내용변경</span>` : "";
+                const hlClass = showUpd ? "highlight" : "";
+
+                const dates = data.date ? data.date.split(', ') : [];
+                const times = data.time ? data.time.split(', ') : [];
+                let schHtml = `<div class="schedule-list">`;
+                dates.forEach((d, i) => { schHtml += `<div class="schedule-item"><span class="sc-date">📅 ${d}</span><span class="sc-time">⏰ ${times[i]}</span></div>`; });
+                schHtml += `</div>`;
+
+                const commonHtml = `
+                    <p><b>📍 강의 주소</b> <span class="${hlClass}"><a href="https://map.naver.com/v5/search/${encodeURIComponent(data.address)}" target="_blank" class="map-link">${data.address} 🔗</a></span></p>
+                    <p><b>🏫 교육 장소</b> <span class="${hlClass}">${data.classRoom || '미정'}</span></p>
+                    <p><b>🎖️ 배정역할</b> <span>${data.role}</span></p>
+                    <div style="margin-top: 10px; font-weight: bold; color: #555;">📆 교육 일정 ${showUpd ? '(시간변경 확인요망)' : ''}</div>
+                    <div class="${hlClass}">${schHtml}</div>
+                    <div class="divider"></div>
+                    <p><b>⏳ 총 강의시간</b> <span>${data.classHours}시간</span></p>
+                    <p><b>💰 시간당 강사료</b> <span>${data.hourlyRate.toLocaleString()}원</span></p>
+                    <p><b>➕ 추가비용</b> <span>${(data.additionalCost || 0).toLocaleString()}원</span></p>
+                    <p class="total-pay"><b>💵 총 강사료</b> <span class="${hlClass}">${totalGrossPay.toLocaleString()}원</span></p>
+                    <p><b>🏷️ 서비스 이용료</b> <span>${serviceFee.toLocaleString()}원 (${data.commissionRate}%)</span></p>
+                    <div class="pay-status-row">
+                        <div class="status-box ${data.isPaidTeacher?'status-complete':'status-waiting'}">${data.isPaidTeacher?'✅ 강사료 완료':'⌛ 강사료 대기'}</div>
+                        <div class="status-box ${data.isPaidService?'status-complete':'status-waiting'}">${data.isPaidService?'✅ 서비스이용료 확인':'⌛ 서비스이용료 대기'}</div>
+                    </div>
+                    ${isConfirmed ? `<span class="confirmed-msg">👍 확인 완료됨</span>` 
+                    : `<button class="check-btn" onclick="confirmAssignment('${data.id}')">변경된 강의내용 확인하기</button>`}`;
+
+                cardHtml += `<div class="card"><h3>${data.client} ${updBadge}</h3><p><b>📚 강좌명</b> <span>${data.subject}</span></p>${commonHtml}</div>`;
+                listHtml += `<div class="list-item" style="border-left-color:${isConfirmed?'#28a745':'#ffc107'}">
+                    <div class="list-header" onclick="toggleDetail('${data.id}')"><div class="lh-info"><div class="lh-date">${dates[0]}</div><div class="lh-title">${data.client} ${updBadge}</div></div><span class="lh-status ${isConfirmed?'st-ok':'st-wait'}">${isConfirmed?'확인완료':'확인대기'}</span></div>
+                    <div class="list-body" id="detail-${data.id}">${commonHtml}</div></div>`;
+            });
+            cardCon.innerHTML = cardHtml || '<div style="text-align:center; padding:40px;">내역 없음</div>';
+            listCon.innerHTML = listHtml;
+        }
+
+        window.toggleDetail = (id) => { const el = document.getElementById(`detail-${id}`); el.style.display = el.style.display === 'block' ? 'none' : 'block'; }
+        
+        window.confirmAssignment = async (docId) => {
+            if(!confirm("변경된 강의 배정 내용을 확인하셨습니까?")) return;
+            // 🔥 확인을 누르면 isUpdated를 false로 돌려서 강조 효과 제거
+            await updateDoc(doc(db, "assignments", docId), { status: "확인완료", isUpdated: false });
+        }
+        window.handleLogout = () => signOut(auth).then(() => { location.href = "index.html"; });
     </script>
 </body>
 </html>
