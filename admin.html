@@ -33,7 +33,6 @@
         .btn-addr-search { width: 50px; background-color: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
         .btn-addr-search:hover { background-color: #5a6268; }
         
-        /* 🔥 강의의뢰처 입력란 스타일 */
         #requestClient { flex: 3; min-width: 150px; }
         
         .role-wrapper { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -50,7 +49,6 @@
 
         .time-picker-group { display: flex; align-items: center; gap: 5px; flex: 2; justify-content: flex-end; flex-wrap: wrap; }
 
-        /* 🔥 시간 선택 UI 깨짐 방지를 위한 스타일 수정 */
         .time-set {
             display: flex; align-items: center; gap: 2px;
             background: #fff; border: 1px solid #ced4da; border-radius: 6px;
@@ -58,7 +56,7 @@
         }
 
         .time-set select { 
-            width: auto !important; /* 100% 너비 해제 */
+            width: auto !important; 
             border: none; background: transparent; padding: 0 2px; font-size: 14px; text-align: center; height: 100%; 
         }
         .time-set select:focus { outline: none; }
@@ -76,8 +74,11 @@
         }
 
         .btn-add-row { background-color: #51cf66; color: white; border: none; border-radius: 8px; padding: 12px 15px; cursor: pointer; font-weight: bold; font-size: 15px; width: 100%; margin-bottom: 10px; }
-        .btn-assign { width: 100%; padding: 16px; background-color: #0056b3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 17px; margin-top: 15px; }
         
+        .btn-assign { width: 100%; padding: 16px; background-color: #0056b3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 17px; margin-top: 15px; }
+        /* 🔥 버튼 비활성화 시 스타일 추가 */
+        .btn-assign:disabled { background-color: #a5c3e6; cursor: not-allowed; }
+
         .admin-footer-buttons { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
         .btn-status-link, .btn-list-link { flex: 1; min-width: 150px; padding: 14px; background-color: #f1f3f5; color: #495057; text-align: center; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid #e9ecef; }
 
@@ -322,6 +323,8 @@
 
 
     document.getElementById('assignBtn').addEventListener('click', async () => {
+        // 🔥 중복 방지 로직 시작
+        const assignBtn = document.getElementById('assignBtn');
         const selectedEmail = document.getElementById('teacherSelect').value;
         const teacherObj = teachersData.find(t => t.email === selectedEmail);
         const name = teacherObj ? teacherObj.name : "";
@@ -329,7 +332,7 @@
         const client = document.getElementById('client').value;
         const subject = document.getElementById('subject').value;
         const address = document.getElementById('address').value;
-        const requestClient = document.getElementById('requestClient').value; // 🔥 강의의뢰처 변수
+        const requestClient = document.getElementById('requestClient').value; 
         
         let role = document.getElementById('roleSelect').value;
         if (role === 'direct') {
@@ -365,10 +368,15 @@
         const additionalCost = rawAdditionalCost ? Number(rawAdditionalCost) : 0;
         const commissionRate = document.getElementById('commissionRate').value ? Number(document.getElementById('commissionRate').value) : 0;
 
+        // 필수 항목 유효성 검사
         if (!name) { alert("강사님을 선택해주세요."); return; }
         if (!client) { alert("강의처를 입력해주세요."); return; }
         if (!role) { alert("역할을 선택(혹은 직접입력)해주세요."); return; }
         if (dateList.length === 0) { alert("교육 일정을 최소 1개 이상 등록해주세요."); return; }
+
+        // 🔥 버튼 비활성화 및 텍스트 변경
+        assignBtn.disabled = true;
+        assignBtn.innerText = "강의 배정 중... 잠시만 기다려주세요.";
 
         try {
             const lectureFee = classHours * hourlyRate;
@@ -379,7 +387,7 @@
                 teacherEmail: email,
                 client: client,
                 address: address || "-",
-                requestClient: requestClient || "", // 🔥 DB에는 저장 (관리자 확인용)
+                requestClient: requestClient || "", 
                 subject: subject || "내용없음",
                 role: role, 
                 date: eduDate, 
@@ -389,7 +397,7 @@
                 hourlyRate: hourlyRate,
                 additionalCost: additionalCost,
                 commissionRate: commissionRate, 
-                serviceFee: calculatedServiceFee,       
+                serviceFee: calculatedServiceFee,      
                 status: "배정완료",
                 createdAt: new Date(),
                 isPaidTeacher: false, 
@@ -401,7 +409,6 @@
                 teacherName: name,
                 client: client,
                 address: address || "장소 추후공지",
-                /* 🔥 강사에게 보내는 이메일 항목에서 requestClient(강의의뢰처) 제외 */
                 subject: subject || "강좌정보 없음",
                 date: eduDate, 
                 time: eduTime || "시간 추후공지",
@@ -415,6 +422,9 @@
             location.reload(); 
         } catch (error) {
             alert("오류 발생: " + error.message);
+            // 오류 발생 시 버튼 다시 활성화
+            assignBtn.disabled = false;
+            assignBtn.innerText = "강의 배정하기";
         }
     });
 </script>

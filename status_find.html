@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>에듀메이커 - 일반강의 현황</title>
+    <title>에듀메이커 - 찾학컨 현황</title>
     <style>
         body { font-family: 'Pretendard', sans-serif; background-color: #f0f4f8; padding: 40px; margin: 0; }
         .list-container { max-width: 1650px; margin: 0 auto; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.05); }
@@ -13,7 +13,7 @@
         .header-btn-group { display: flex; gap: 10px; }
         .btn-header { padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; color: white; transition: background 0.2s; border: none; cursor: pointer; }
         .btn-tab { background-color: #f1f3f5; color: #495057; border: 1px solid #e9ecef; }
-        .btn-tab.active { background-color: #0056b3; color: white; border-color: #0056b3; }
+        .btn-tab.active { background-color: #6741d9; color: white; border-color: #6741d9; }
         .btn-back { background-color: #6c757d; color: white; }
         .filter-bar { margin-bottom: 20px; display: flex; align-items: center; gap: 12px 20px; background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef; flex-wrap: wrap; }
         .filter-item { display: flex; align-items: center; gap: 8px; font-size: 13.5px; white-space: nowrap; }
@@ -23,7 +23,7 @@
         .btn-search { background-color: #0056b3; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
         .btn-reset { background-color: #6c757d; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-bottom: 1px solid #eee; }
-        table { width: 100%; min-width: 1200px; border-collapse: collapse; table-layout: fixed; border-top: 2px solid #0056b3; }
+        table { width: 100%; min-width: 1200px; border-collapse: collapse; table-layout: fixed; border-top: 2px solid #6741d9; }
         th, td { border-bottom: 1px solid #eee; padding: 12px 8px; text-align: left; font-size: 13px; vertical-align: middle; }
         th { background-color: #fafafa; color: #495057; font-weight: 700; font-size: 12px; line-height: 1.4; text-align: center; }
         .col-no { width: 40px; text-align: center; font-weight: bold; color: #666; }
@@ -39,10 +39,10 @@
         .col-manage { width: 115px; text-align: center; padding-right: 2px; }
         .row-finished, .row-finished td { background-color: #fffde7 !important; }
         .row-class-finished, .row-class-finished td { background-color: #f3e5f5 !important; }
-        .summary-bar { margin-top: 20px; background-color: #e3f2fd; border: 2px solid #0056b3; border-radius: 12px; padding: 20px 30px; display: flex; justify-content: flex-end; align-items: center; gap: 40px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .summary-bar { margin-top: 20px; background-color: #f3f0ff; border: 2px solid #6741d9; border-radius: 12px; padding: 20px 30px; display: flex; justify-content: flex-end; align-items: center; gap: 40px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .sum-item { display: flex; align-items: center; gap: 10px; font-size: 15px; color: #333; }
         .sum-label { font-weight: 600; color: #555; }
-        .sum-value { font-size: 18px; font-weight: 800; color: #0056b3; letter-spacing: -0.5px; }
+        .sum-value { font-size: 18px; font-weight: 800; color: #6741d9; letter-spacing: -0.5px; }
         .sum-value.highlight { color: #d93025; font-size: 22px; }
         .sum-divider { width: 1px; height: 18px; background-color: #cbd5e1; }
         .text-line { display: block; margin-bottom: 3px; line-height: 1.4; white-space: normal; word-break: keep-all; }
@@ -83,12 +83,12 @@
 <div class="list-container">
     <div class="header">
         <div style="display:flex; align-items:center; gap:10px;">
-            <a href="admin.html" class="logo">EDUMAKER ADMIN</a>
-            <h2>📋 일반 배정 현황</h2>
+            <a href="admin.html" class="logo" style="color:#6741d9;">EDUMAKER ADMIN</a>
+            <h2>📋 찾학컨 배정 현황</h2>
         </div>
         <div class="header-btn-group">
-            <a href="status.html" class="btn-header btn-tab active">일반강의</a>
-            <a href="status_find.html" class="btn-header btn-tab">찾학컨</a>
+            <a href="status.html" class="btn-header btn-tab">일반강의</a>
+            <a href="status_find.html" class="btn-header btn-tab active">찾학컨</a>
             <a href="status_dsac.html" class="btn-header btn-tab">디싹</a>
             <a href="admin.html" class="btn-header btn-back">강의 배정 페이지</a>
         </div>
@@ -211,7 +211,7 @@
             .map(d => ({ id: d.id, data: d.data() }))
             .filter(item => {
                 const rc = item.data.requestClient || "";
-                return !rc.includes('찾학컨') && !rc.includes('디싹');
+                return rc.includes('찾학컨');
             });
 
         rawData.sort((a, b) => {
