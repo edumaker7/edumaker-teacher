@@ -33,7 +33,6 @@
         .col-no { width: 45px; text-align: center; font-weight: bold; color: #666; }
         .col-date { width: 115px; text-align: center; }
         .col-user { width: 160px; text-align: center; }
-        /* 🔥 [수정] 강좌명 칸 너비 살짝 늘림 (잘림 방지 보조) */
         .col-info { width: 200px; padding-left: 20px !important; } 
         .col-pay { width: 105px; text-align: right; padding-right: 15px !important; }
         .col-total { width: 125px; text-align: right; padding-right: 15px !important; }
@@ -45,7 +44,8 @@
         }
         .col-confirm { width: 70px; text-align: center; }
         .col-chk { width: 130px; }
-        .col-manage { width: 110px; text-align: center; }
+        /* 🔥 [수정] 너비 110px -> 120px로 확장하여 잘림 방지 */
+        .col-manage { width: 120px; text-align: center; }
 
         .row-finished, .row-finished td { background-color: #fffde7 !important; }
 
@@ -80,14 +80,11 @@
             .filter-bar { gap: 10px; }
         }
 
-        /* 🔥 [수정] 텍스트 잘림 해결 (줄바꿈 허용) */
         .text-line { 
             display: block; 
             margin-bottom: 3px; 
             line-height: 1.4; 
-            /* 기존의 nowrap(한줄강제) 제거 -> normal(자동줄바꿈) */
             white-space: normal; 
-            /* 단어 중간에 끊기지 않고 자연스럽게 줄바꿈 */
             word-break: keep-all; 
         }
         
@@ -109,9 +106,16 @@
         .chk-group input { margin-right: 6px; transform: scale(1.05); }
 
         .btn-group { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
-        .btn-group button { border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; padding: 4px 0; color: white; width: 100%; }
-        .btn-half { flex: 0 0 48%; }
-        .btn-full { flex: 0 0 98%; margin-top: 2px; }
+        /* 🔥 [수정] 버튼 스타일 최적화: 너비를 flex로 자동 조정 및 패딩 추가 */
+        .btn-group button { 
+            border: none; border-radius: 4px; cursor: pointer; 
+            font-size: 11px; font-weight: bold; padding: 6px 0; /* 패딩 증가 */
+            color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
+        }
+        
+        /* 🔥 [수정] 버튼 배치 간격 조정 */
+        .btn-half { flex: 1; min-width: 45px; }
+        .btn-full { width: 100%; margin-top: 2px; }
         
         .btn-finish { background-color: #555e67; }
         .btn-restore { background-color: #28a745; }
@@ -294,21 +298,18 @@
     onSnapshot(query(collection(db, "assignments"), orderBy("createdAt", "desc"), limit(200)), (sn) => {
         allAssignments = sn.docs.map(d => ({ id: d.id, data: d.data() }));
         
-        // 콤보박스 옵션 채우기 (강사, 강의처, 의뢰처)
-        const tSet = new Set(); 
-        const cSet = new Set();
-        const rSet = new Set(); // 🔥 의뢰처 Set 추가
+        const tSet = new Set(); const cSet = new Set();
+        const rSet = new Set(); 
 
         allAssignments.forEach(i => { 
             if(i.data.teacherName) tSet.add(i.data.teacherName); 
             if(i.data.client) cSet.add(i.data.client);
-            if(i.data.requestClient) rSet.add(i.data.requestClient); // 🔥 데이터 수집
+            if(i.data.requestClient) rSet.add(i.data.requestClient); 
         });
         
-        // 기존 선택값 유지
         const tSelect = document.getElementById('teacherFilter');
         const cSelect = document.getElementById('clientFilter');
-        const rSelect = document.getElementById('requestClientFilter'); // 🔥 선택자 추가
+        const rSelect = document.getElementById('requestClientFilter'); 
 
         const currentT = tSelect.value;
         const currentC = cSelect.value;
@@ -316,7 +317,6 @@
 
         tSelect.innerHTML = `<option value="all">전체</option>` + Array.from(tSet).map(t => `<option value="${t}" ${t===currentT?'selected':''}>${t}</option>`).join('');
         cSelect.innerHTML = `<option value="all">전체</option>` + Array.from(cSet).map(c => `<option value="${c}" ${c===currentC?'selected':''}>${c}</option>`).join('');
-        // 🔥 의뢰처 옵션 추가
         rSelect.innerHTML = `<option value="all">전체</option>` + Array.from(rSet).map(r => `<option value="${r}" ${r===currentR?'selected':''}>${r}</option>`).join('');
         
         window.filterAssignments(); 
@@ -325,29 +325,20 @@
     window.filterAssignments = () => {
         const t = document.getElementById('teacherFilter').value;
         const c = document.getElementById('clientFilter').value;
-        const r = document.getElementById('requestClientFilter').value; // 🔥 의뢰처 값 가져오기
+        const r = document.getElementById('requestClientFilter').value; 
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
 
         const filtered = allAssignments.filter(item => {
             const data = item.data;
-            
-            // 1. 강사 필터
             if (t !== "all" && data.teacherName !== t) return false;
-            
-            // 2. 강의처 필터
             if (c !== "all" && data.client !== c) return false;
-
-            // 3. 🔥 의뢰처 필터
             if (r !== "all" && data.requestClient !== r) return false;
-
-            // 4. 날짜 기간 필터
             if (startDate && endDate) {
                 const dates = (data.date || "").split(', ');
                 const isWithinRange = dates.some(d => d >= startDate && d <= endDate);
                 if (!isWithinRange) return false;
             }
-
             return true;
         });
         
@@ -357,7 +348,7 @@
     window.resetFilters = () => {
         document.getElementById('teacherFilter').value = 'all';
         document.getElementById('clientFilter').value = 'all';
-        document.getElementById('requestClientFilter').value = 'all'; // 🔥 초기화 추가
+        document.getElementById('requestClientFilter').value = 'all'; 
         document.getElementById('startDate').value = '';
         document.getElementById('endDate').value = '';
         window.filterAssignments();
