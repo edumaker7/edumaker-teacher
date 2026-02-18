@@ -8,6 +8,7 @@
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
     <style>
+        /* ... (CSS 스타일은 기존과 동일하므로 생략하지 않고 전체 유지) ... */
         body { font-family: 'Pretendard', sans-serif; background-color: #f8f9fa; padding: 40px; margin: 0; }
         
         .admin-box { 
@@ -22,10 +23,8 @@
         label { display: block; font-weight: 600; margin-bottom: 8px; color: #444; font-size: 14px; }
         .required { color: #d93025; margin-left: 3px; font-weight: bold; }
         
-        /* 기본 인풋 스타일 */
         input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         
-        /* 레이아웃 그룹 */
         .row-group { display: flex; gap: 15px; margin-bottom: 18px; flex-wrap: wrap; }
         .half-input { flex: 1; min-width: 250px; }
         
@@ -40,37 +39,23 @@
         #roleSelect { flex: 1; min-width: 150px; }
         #roleInputDirect { flex: 1; display: none; min-width: 200px; }
         
-        /* 일정 입력 Row 디자인 */
         .schedule-row { 
             display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; 
             align-items: center; padding: 12px; 
             background-color: #f1f3f5; border-radius: 8px; border: 1px solid #e9ecef;
         }
         
-        .schedule-row input[type="date"] { 
-            flex: 1; min-width: 140px; background: #fff; border: 1px solid #ced4da;
-        } 
+        .schedule-row input[type="date"] { flex: 1; min-width: 140px; background: #fff; border: 1px solid #ced4da; } 
 
-        /* 시간 선택 그룹 */
-        .time-picker-group { 
-            display: flex; align-items: center; gap: 5px; flex: 2; 
-            justify-content: flex-end; flex-wrap: wrap; 
-        }
+        .time-picker-group { display: flex; align-items: center; gap: 5px; flex: 2; justify-content: flex-end; flex-wrap: wrap; }
 
-        /* 개별 시간 세트 박스 디자인 */
         .time-set {
             display: flex; align-items: center; gap: 2px;
             background: #fff; border: 1px solid #ced4da; border-radius: 6px;
             padding: 0 5px; height: 45px;
         }
 
-        /* 시간 선택 셀렉트 박스 */
-        .time-set select {
-            width: auto !important; 
-            border: none; background: transparent;
-            padding: 0 2px; font-size: 14px; text-align: center;
-            height: 100%;
-        }
+        .time-set select { width: auto !important; border: none; background: transparent; padding: 0 2px; font-size: 14px; text-align: center; height: 100%; }
         .time-set select:focus { outline: none; }
 
         .ampm-select { font-weight: bold; color: #0056b3; width: 55px !important; }
@@ -78,7 +63,6 @@
         
         .tilde { font-weight: bold; color: #888; margin: 0 2px; }
         
-        /* 삭제 버튼 디자인 */
         .btn-remove-row { 
             background-color: #ff6b6b; color: white; border: none; 
             border-radius: 6px; width: 40px; height: 45px; 
@@ -92,11 +76,9 @@
         .admin-footer-buttons { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
         .btn-status-link, .btn-list-link { flex: 1; min-width: 150px; padding: 14px; background-color: #f1f3f5; color: #495057; text-align: center; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid #e9ecef; }
 
-        /* 모바일 최적화 */
         @media (max-width: 600px) {
             body { padding: 20px; }
             .admin-box { padding: 25px 20px; }
-            
             .schedule-row input[type="date"] { width: 100%; flex: 100%; margin-bottom: 5px; }
             .time-picker-group { width: 100%; justify-content: space-between; flex: 100%; }
             .time-set { flex: 1; justify-content: center; } 
@@ -260,6 +242,10 @@
             const querySnapshot = await getDocs(collection(db, "users"));
             querySnapshot.forEach((doc) => {
                 const userData = doc.data();
+                
+                // 🔥 [수정] 관리자 계정은 목록에서 제외하는 로직 추가
+                if (userData.email === "help@edumaker.kr") return;
+
                 if(userData.name && userData.email) {
                     teachersData.push(userData);
                     const option = document.createElement('option');
@@ -296,7 +282,6 @@
 
     const scheduleContainer = document.getElementById('scheduleContainer');
     
-    // 🔥 [수정] 기본값을 '오전'으로 설정 (selected 속성 이동)
     function addScheduleRow() {
         const row = document.createElement('div');
         row.className = 'schedule-row';
@@ -309,18 +294,18 @@
             <div class="time-picker-group">
                 <div class="time-set">
                     <select class="ampm-start ampm-select">
-                        <option value="오전" selected>오전</option> <option value="오후">오후</option>
+                        <option value="오전" selected>오전</option>
+                        <option value="오후">오후</option>
                     </select>
                     <select class="hour-start hour-select">${hourOpts}</select>
                     <span>:</span>
                     <select class="min-start min-select">${minOpts}</select>
                 </div>
-                
                 <span class="tilde">~</span>
-                
                 <div class="time-set">
                     <select class="ampm-end ampm-select">
-                        <option value="오전" selected>오전</option> <option value="오후">오후</option>
+                        <option value="오전" selected>오전</option>
+                        <option value="오후">오후</option>
                     </select>
                     <select class="hour-end hour-select">${hourOpts}</select>
                     <span>:</span>
