@@ -8,101 +8,66 @@
         body { font-family: 'Pretendard', sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
         .header { background-color: #0056b3; color: white; padding: 20px; text-align: center; }
         .container { max-width: 900px; margin: 20px auto; padding: 0 20px; }
-        
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         .welcome-msg { font-size: 16px; color: #333; margin: 0; font-weight: 600; }
         
-        /* 검색 바 레이아웃 */
-        .search-bar { 
-            background: #fff; padding: 15px; border-radius: 12px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; 
-            display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
-        }
+        .search-bar { background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .search-input { padding: 9px; border: 1px solid #ddd; border-radius: 6px; font-size: 13.5px; flex: 1; min-width: 100px; }
+        .date-group { display: flex; align-items: center; gap: 5px; flex: 0 0 auto; width: 290px; }
+        .date-input { padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13.5px; font-family: inherit; width: 100%; }
+        .search-select { padding: 9px; border: 1px solid #ddd; border-radius: 6px; font-size: 13.5px; flex: 0 0 auto; width: 125px; background-color: white; }
+        .btn-reset { background-color: #6c757d; color: white; border: none; padding: 9px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13.5px; flex: 0 0 auto; }
         
-        /* 1. 강의처 검색: 최소 너비를 줄여서 공간 양보 */
-        .search-input { 
-            padding: 9px; border: 1px solid #ddd; border-radius: 6px; 
-            font-size: 13.5px; 
-            flex: 1; 
-            min-width: 100px; 
-        }
-        
-        /* 2. 날짜 입력 그룹: 너비 확보 */
-        .date-group { 
-            display: flex; align-items: center; gap: 5px; 
-            flex: 0 0 auto; 
-            width: 290px;
-        }
-        .date-input {
-            padding: 8px; border: 1px solid #ddd; border-radius: 6px; 
-            font-size: 13.5px; font-family: inherit; width: 100%;
-        }
-        
-        /* 3. 드롭다운: 너비 확보 */
-        .search-select {
-            padding: 9px; border: 1px solid #ddd; border-radius: 6px; 
-            font-size: 13.5px; 
-            flex: 0 0 auto; 
-            width: 125px;
-            background-color: white;
-        }
-        
-        .btn-reset {
-            background-color: #6c757d; color: white; border: none; 
-            padding: 9px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13.5px;
-            flex: 0 0 auto;
-        }
-        
+        /* 상태 범례 (3가지 상태로 정리) */
+        .status-legend { display: flex; gap: 15px; padding: 5px 15px 15px 5px; flex-wrap: wrap; justify-content: flex-start; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #666; font-weight: 500; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        .dot.red { background-color: #d93025; }
+        .dot.green { background-color: #28a745; }
+        .dot.yellow { background-color: #fbc02d; border: 1px solid #f1c40f; }
+
         .view-toggle { display: flex; background: #e9ecef; border-radius: 8px; padding: 4px; }
         .toggle-btn { border: none; background: none; padding: 8px 12px; font-size: 13px; cursor: pointer; border-radius: 6px; font-weight: bold; color: #666; }
         .toggle-btn.active { background: #fff; color: #0056b3; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        
         .assignment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
         
         .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; }
+        /* 🔥 정산완료(노란색) 배경색만 유지 */
+        .card.finished { background-color: #fffde7 !important; } 
+        
         .card h3 { margin-top: 0; color: #0056b3; font-size: 18px; border-bottom: 1px solid #eee; padding-bottom: 10px; display: flex; align-items: center; }
         .card h3::before { content: '🏫 '; }
-        
         .info-single { margin-bottom: 8px; }
         .info-single p { margin: 0 !important; font-size: 13.5px; color: #555; display: flex; align-items: flex-start; line-height: 1.6; flex-wrap: wrap; }
         .info-single b { color: #333; width: 85px; flex-shrink: 0; display: inline-block; }
         .info-single span { flex: 1; word-break: break-all; display: inline; }
-
-        .detail-section { display: none; margin-top: 10px; padding: 12px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #eee; }
+        .detail-section { display: none; margin-top: 10px; padding: 12px; background-color: rgba(0,0,0,0.03); border-radius: 8px; border: 1px solid rgba(0,0,0,0.05); }
         .btn-detail-toggle { width: 100%; padding: 10px; background: #fff; border: 1px solid #ced4da; color: #495057; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 600; margin-top: 10px; transition: 0.2s; }
-        .btn-detail-toggle:hover { background-color: #f1f3f5; border-color: #adb5bd; }
-        
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin-bottom: 5px; }
         .info-grid p { margin: 0 !important; font-size: 13px; color: #555; display: flex; align-items: flex-start; line-height: 1.4; }
         .info-grid b { color: #333; width: 70px; flex-shrink: 0; display: inline-block; }
-
         .upd-badge { background: #d93025; color: white; font-size: 10px; padding: 2px 5px; border-radius: 4px; margin-left: 8px; }
         .highlight { color: #0056b3 !important; font-weight: bold; background: #e7f1ff; border-radius: 4px; padding: 1px 4px; display: inline; word-break: break-all; }
-
-        .schedule-list { background-color: #f1f3f5; padding: 10px; border-radius: 8px; margin: 4px 0 6px 0; font-size: 13px; }
+        .schedule-list { background-color: rgba(0,0,0,0.04); padding: 10px; border-radius: 8px; margin: 4px 0 6px 0; font-size: 13px; }
         .schedule-item { margin-bottom: 3px; display: flex; gap: 8px; }
         .sc-date { font-weight: bold; color: #0056b3; }
-        
         .divider { border-top: 1px dashed #ddd; margin: 8px 0; }
         .total-pay-detail { color: #d93025; font-weight: bold; font-size: 1.1em; margin-top: 8px; display: block; }
-        
         .note-box { padding: 12px; margin-top: 8px; font-size: 13.5px; border-radius: 6px; line-height: 1.6; word-break: break-all; }
-        
         .pay-status-row { display: flex; gap: 6px; margin-top: 12px; }
-        .status-box { flex: 1; padding: 8px 4px; text-align: center; border-radius: 6px; font-weight: bold; font-size: 11px; }
-        .status-waiting { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .status-complete { background-color: #e9ecef; color: #6c757d; border: 1px solid #dee2e6; }
-        
+        .status-box { flex: 1; padding: 8px 4px; text-align: center; border-radius: 6px; font-weight: bold; font-size: 11px; border: 1px solid rgba(0,0,0,0.1); }
+        .status-waiting { background-color: #d4edda; color: #155724; }
+        .status-complete { background-color: #e9ecef; color: #6c757d; }
         .check-btn { width: 100%; padding: 12px; margin-top: 12px; background-color: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13.5px; }
-        .confirmed-msg { display: block; margin-top: 12px; padding: 12px; text-align: center; background-color: #f8f9fa; color: #adb5bd; border-radius: 8px; font-weight: bold; font-size: 13.5px; }
-        
+        .confirmed-msg { display: block; margin-top: 12px; padding: 12px; text-align: center; background-color: rgba(0,0,0,0.05); color: #adb5bd; border-radius: 8px; font-weight: bold; font-size: 13.5px; }
         .btn-group-top { display: flex; gap: 8px; }
         .logout-btn { background: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
         .mypage-btn { background: #0056b3; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
-        .mypage-btn:hover { background: #004494; }
-
+        
         .list-container { display: flex; flex-direction: column; gap: 10px; }
         .list-item { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 5px solid #ccc; }
+        .list-item.finished { background-color: #fffde7 !important; } /* 완료: 노란색만 유지 */
+        
         .list-header { padding: 15px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
         .lh-info { flex: 1; }
         .lh-date { font-size: 12px; color: #888; font-weight: bold; }
@@ -110,15 +75,9 @@
         .lh-status { font-size: 12px; padding: 4px 8px; border-radius: 12px; margin-left: 10px; }
         .st-wait { background: #fff3cd; color: #856404; }
         .st-ok { background: #d4edda; color: #155724; }
-        .list-body { display: none; padding: 0 15px 15px 15px; border-top: 1px solid #eee; background-color: #fafafa; }
-
+        .list-body { display: none; padding: 0 15px 15px 15px; border-top: 1px solid #eee; }
         .no-data-msg { text-align: center; padding: 60px 20px; color: #888; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-size: 15px; }
-
-        @media (max-width: 600px) {
-            .search-bar { flex-direction: column; align-items: stretch; gap: 10px; }
-            .date-group { width: 100%; }
-            .search-input, .search-select, .btn-reset { width: 100%; box-sizing: border-box; }
-        }
+        @media (max-width: 600px) { .search-bar { flex-direction: column; align-items: stretch; gap: 10px; } .date-group { width: 100%; } .search-input, .search-select, .btn-reset { width: 100%; box-sizing: border-box; } }
     </style>
 </head>
 <body>
@@ -126,42 +85,21 @@
     <div class="container">
         <div class="top-bar">
             <div id="welcome-text" class="welcome-msg">정보 로딩 중...</div>
-            <div style="display:flex; align-items:center; gap:10px; flex-wrap: wrap;">
-                <div class="view-toggle">
-                    <button class="toggle-btn active" id="btn-card" onclick="changeView('card')">🗂️ 카드형</button>
-                    <button class="toggle-btn" id="btn-list" onclick="changeView('list')">☰ 리스트형</button>
-                </div>
-                <div class="btn-group-top">
-                    <button class="mypage-btn" onclick="location.href='mypage.html'">내 정보 수정</button>
-                    <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
-                </div>
-            </div>
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap: wrap;"><div class="view-toggle"><button class="toggle-btn active" id="btn-card" onclick="changeView('card')">🗂️ 카드형</button><button class="toggle-btn" id="btn-list" onclick="changeView('list')">☰ 리스트형</button></div><div class="btn-group-top"><button class="mypage-btn" onclick="location.href='mypage.html'">내 정보 수정</button><button class="logout-btn" onclick="handleLogout()">로그아웃</button></div></div>
         </div>
 
         <div class="search-bar">
             <input type="text" id="searchInput" class="search-input" placeholder="🔍 강의처 검색">
-            
-            <div class="date-group">
-                <input type="date" id="startDate" class="date-input">
-                <span>~</span>
-                <input type="date" id="endDate" class="date-input">
-            </div>
-
-            <select id="payTeacherFilter" class="search-select">
-                <option value="all">💰 강사료: 전체</option>
-                <option value="completed">지급 완료</option>
-                <option value="waiting">지급 대기</option>
-                <option value="client_paid">의뢰처 지급</option>
-            </select>
-
-            <select id="payServiceFilter" class="search-select">
-                <option value="all">🏷️ 이용료: 전체</option>
-                <option value="completed">이용료 입금</option>
-                <option value="waiting">이용료 대기</option>
-                <option value="no_fee">이용료 없음</option>
-            </select>
-
+            <div class="date-group"><input type="date" id="startDate" class="date-input"><span>~</span><input type="date" id="endDate" class="date-input"></div>
+            <select id="payTeacherFilter" class="search-select"><option value="all">💰 강사료: 전체</option><option value="completed">지급 완료</option><option value="waiting">지급 대기</option><option value="client_paid">의뢰처 지급</option></select>
+            <select id="payServiceFilter" class="search-select"><option value="all">🏷️ 이용료: 전체</option><option value="completed">이용료 입금</option><option value="waiting">이용료 대기</option><option value="no_fee">이용료 없음</option></select>
             <button class="btn-reset" onclick="resetSearch()">초기화</button>
+        </div>
+
+        <div class="status-legend">
+            <div class="legend-item"><span class="dot red"></span> 배정확인 대기</div>
+            <div class="legend-item"><span class="dot green"></span> 배정확인 완료</div>
+            <div class="legend-item"><span class="dot yellow"></span> 정산 및 행정 완료</div>
         </div>
 
         <div id="card-view-container" class="assignment-grid"></div>
@@ -175,8 +113,13 @@
 
         const firebaseConfig = { apiKey: "AIzaSyDKA0GjAlOF826TZl49y67H4oz8nMW_Jbw", authDomain: "edumaker-teacher-d97ba.firebaseapp.com", projectId: "edumaker-teacher-d97ba", storageBucket: "edumaker-teacher-d97ba.firebasestorage.app", messagingSenderId: "532708143359", appId: "1:532708143359:web:89b9933da4c868127ddcca", measurementId: "G-JJ1TF77VBJ" };
         const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
-        
         let allAssignmentsData = [];
+
+        function getDayOfWeek(dateStr) {
+            const week = ['일', '월', '화', '수', '목', '금', '토'];
+            const day = new Date(dateStr).getDay();
+            return isNaN(day) ? "" : `(${week[day]})`;
+        }
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -200,38 +143,21 @@
             const end = document.getElementById('endDate').value;
             const payT = document.getElementById('payTeacherFilter').value;
             const payS = document.getElementById('payServiceFilter').value;
-
-            if (!keyword && !start && !end && payT === 'all' && payS === 'all') {
-                renderAssignments(allAssignmentsData);
-                return;
-            }
-
+            if (!keyword && !start && !end && payT === 'all' && payS === 'all') { renderAssignments(allAssignmentsData); return; }
             const filteredData = allAssignmentsData.filter(data => {
                 const clientMatch = !keyword || (data.client && data.client.toLowerCase().includes(keyword));
-                
-                let dateMatch = true;
-                if (start && end) {
-                    const dates = (data.date || "").split(', ');
-                    dateMatch = dates.some(d => d >= start && d <= end);
-                }
-
+                let dateMatch = true; if (start && end) { dateMatch = (data.date || "").split(', ').some(d => d >= start && d <= end); }
                 const commRate = Number(data.commissionRate || 0);
-
-                // 강사료 필터
                 let payTMatch = true;
                 if (payT === 'completed' && (!data.isPaidTeacher || commRate > 0)) payTMatch = false;
                 if (payT === 'waiting' && (data.isPaidTeacher || commRate > 0)) payTMatch = false;
                 if (payT === 'client_paid' && commRate === 0) payTMatch = false;
-
-                // 이용료 필터
                 let paySMatch = true;
                 if (payS === 'completed' && (!data.isPaidService || commRate === 0)) paySMatch = false;
                 if (payS === 'waiting' && (data.isPaidService || commRate === 0)) paySMatch = false;
                 if (payS === 'no_fee' && commRate > 0) paySMatch = false;
-
                 return clientMatch && dateMatch && payTMatch && paySMatch;
             });
-
             renderAssignments(filteredData);
         }
 
@@ -240,123 +166,59 @@
         document.getElementById('endDate').addEventListener('change', filterAndRender);
         document.getElementById('payTeacherFilter').addEventListener('change', filterAndRender);
         document.getElementById('payServiceFilter').addEventListener('change', filterAndRender);
-
-        window.resetSearch = () => {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('startDate').value = '';
-            document.getElementById('endDate').value = '';
-            document.getElementById('payTeacherFilter').value = 'all';
-            document.getElementById('payServiceFilter').value = 'all';
-            filterAndRender();
-        }
-
-        window.changeView = (mode) => {
-            document.getElementById('card-view-container').style.display = mode === 'card' ? 'grid' : 'none';
-            document.getElementById('list-view-container').style.display = mode === 'list' ? 'flex' : 'none';
-            document.getElementById('btn-card').className = `toggle-btn ${mode==='card'?'active':''}`;
-            document.getElementById('btn-list').className = `toggle-btn ${mode==='list'?'active':''}`;
-        }
-
-        window.toggleCardDetail = (id, prefix = 'card') => {
-            const el = document.getElementById(`${prefix}-detail-${id}`);
-            const btn = document.getElementById(`${prefix}-btn-toggle-${id}`);
-            if (el.style.display === 'block') {
-                el.style.display = 'none';
-                btn.innerText = '▼ 상세 내역 보기';
-            } else {
-                el.style.display = 'block';
-                btn.innerText = '▲ 상세 내역 닫기';
-            }
-        }
+        window.resetSearch = () => { document.getElementById('searchInput').value = ''; document.getElementById('startDate').value = ''; document.getElementById('endDate').value = ''; document.getElementById('payTeacherFilter').value = 'all'; document.getElementById('payServiceFilter').value = 'all'; filterAndRender(); }
+        window.changeView = (mode) => { document.getElementById('card-view-container').style.display = mode === 'card' ? 'grid' : 'none'; document.getElementById('list-view-container').style.display = mode === 'list' ? 'flex' : 'none'; document.getElementById('btn-card').className = `toggle-btn ${mode==='card'?'active':''}`; document.getElementById('btn-list').className = `toggle-btn ${mode==='list'?'active':''}`; }
+        window.toggleCardDetail = (id, prefix = 'card') => { const el = document.getElementById(`${prefix}-detail-${id}`); const btn = document.getElementById(`${prefix}-btn-toggle-${id}`); if (el.style.display === 'block') { el.style.display = 'none'; btn.innerText = '▼ 상세 내역 보기'; } else { el.style.display = 'block'; btn.innerText = '▲ 상세 내역 닫기'; } }
 
         function renderAssignments(dataList) {
             const cardCon = document.getElementById('card-view-container'); const listCon = document.getElementById('list-view-container');
             let cardHtml = ""; let listHtml = "";
-
-            if (!dataList || dataList.length === 0) {
-                const msg = (allAssignmentsData.length === 0) 
-                    ? "📭 현재 배정된 강의 내역이 없습니다." 
-                    : "🔍 조건에 맞는 강의 내역이 없습니다.";
-                const noDataHtml = `<div class="no-data-msg">${msg}</div>`;
-                cardCon.innerHTML = noDataHtml; listCon.innerHTML = noDataHtml;
-                return;
-            }
+            if (!dataList || dataList.length === 0) { const msg = (allAssignmentsData.length === 0) ? "📭 현재 배정된 강의 내역이 없습니다." : "🔍 조건에 맞는 강의 내역이 없습니다."; cardCon.innerHTML = `<div class="no-data-msg">${msg}</div>`; listCon.innerHTML = `<div class="no-data-msg">${msg}</div>`; return; }
 
             dataList.forEach(data => {
                 const classHours = Number(data.classHours || 0); const hourlyRate = Number(data.hourlyRate || 0); const additionalCost = Number(data.additionalCost || 0);
                 const lectureFee = classHours * hourlyRate; const totalGrossPay = lectureFee + additionalCost;
                 const isConfirmed = data.status === '확인완료'; const showUpd = data.isUpdated && !isConfirmed;
                 const updBadge = showUpd ? `<span class="upd-badge">내용변경</span>` : "";
+                const isFinished = data.isFinished || false;
 
-                const hlCli = (showUpd && data.changed_client) ? "highlight" : "";
-                const hlSub = (showUpd && data.changed_subject) ? "highlight" : "";
-                const hlAddr = (showUpd && data.changed_address) ? "highlight" : "";
-                const hlRole = (showUpd && data.changed_role) ? "highlight" : "";
-                const hlSch = (showUpd && data.changed_schedule) ? "highlight" : "";
-                const hlH = (showUpd && data.changed_hours) ? "highlight" : "";
-                const hlR = (showUpd && data.changed_rate) ? "highlight" : "";
-                const hlA = (showUpd && data.changed_addCost) ? "highlight" : "";
-                const hlC = (showUpd && data.changed_comm) ? "highlight" : "";
-                const hlTotal = (hlH || hlR || hlA) ? "highlight" : "";
-                
-                const noteBoxStyle = (showUpd && data.changed_note) 
-                    ? "background:#e7f1ff; border-left:4px solid #0056b3; color:#0056b3; font-weight:bold;"
-                    : "background:#fef9e7; border-left:4px solid #f1c40f; color:#666;";
+                // 🔥 수업종료(보라색) 로직 제거하고 완료(노란색)만 판단
+                let statusBgClass = isFinished ? "finished" : "";
 
                 let schHtml = `<div class="schedule-list">`;
-                data.date.split(', ').forEach((d, i) => { schHtml += `<div class="schedule-item"><span class="sc-date">📅 ${d}</span><span class="sc-time">⏰ ${data.time.split(', ')[i] || ''}</span></div>`; });
+                data.date.split(', ').forEach((d, i) => { 
+                    schHtml += `<div class="schedule-item"><span class="sc-date">📅 ${d}${getDayOfWeek(d)}</span><span class="sc-time">⏰ ${data.time.split(', ')[i] || ''}</span></div>`; 
+                });
                 schHtml += `</div>`;
 
-                // 🔥 이용료 유무 확인
                 const commRate = Number(data.commissionRate || 0);
-                
-                // 1. 이용료 표시
-                const serviceFeeDisplay = commRate > 0
-                    ? `<span class="${hlC}">${(data.serviceFee || 0).toLocaleString()}원 (${commRate}%)</span>`
-                    : `<span style="color:#aaa;">이용료 없음</span>`;
-
-                // 2. 강사료 상태박스
-                const lectureStatusBox = commRate > 0
-                    ? `<div class="status-box" style="background:#f1f3f5; color:#aaa; border:1px solid #e9ecef;">의뢰처 지급</div>`
-                    : `<div class="status-box ${data.isPaidTeacher?'status-complete':'status-waiting'}">강사료 ${data.isPaidTeacher?'완료':'대기'}</div>`;
-
-                // 3. 이용료 상태박스
-                const serviceStatusBox = commRate > 0
-                    ? `<div class="status-box ${data.isPaidService?'status-complete':'status-waiting'}">이용료 ${data.isPaidService?'완료':'대기'}</div>`
-                    : `<div class="status-box" style="background:#f1f3f5; color:#aaa; border:1px solid #e9ecef;">이용료 없음</div>`;
+                const serviceFeeDisplay = commRate > 0 ? `<span>${(data.serviceFee || 0).toLocaleString()}원 (${commRate}%)</span>` : `<span style="color:#aaa;">이용료 없음</span>`;
+                const lectureStatusBox = commRate > 0 ? `<div class="status-box" style="background:rgba(0,0,0,0.05); color:#aaa;">의뢰처 지급</div>` : `<div class="status-box ${data.isPaidTeacher?'status-complete':'status-waiting'}">강사료 ${data.isPaidTeacher?'완료':'대기'}</div>`;
+                const serviceStatusBox = commRate > 0 ? `<div class="status-box ${data.isPaidService?'status-complete':'status-waiting'}">이용료 ${data.isPaidService?'완료':'대기'}</div>` : `<div class="status-box" style="background:rgba(0,0,0,0.05); color:#aaa;">이용료 없음</div>`;
 
                 const generateCommonHtml = (prefix) => `
-                    <div class="info-single"><p><b>📚 강좌명</b> : &nbsp;<span class="${hlSub}">${data.subject}</span></p></div>
-                    <div class="info-single"><p><b>📍 강의장소</b> : &nbsp;<span class="${hlAddr}"><a href="https://map.naver.com/v5/search/${encodeURIComponent(data.address)}" target="_blank" class="map-link" style="text-decoration: underline; color: inherit;">${data.address} 🔗</a></span></p></div>
-                    <div class="info-single"><p><b>🎖️ 역할</b> : &nbsp;<span class="${hlRole}">${data.role}</span></p></div>
+                    <div class="info-single"><p><b>📚 강좌명</b> : &nbsp;<span class="${(showUpd && data.changed_subject) ? "highlight" : ""}">${data.subject}</span></p></div>
+                    <div class="info-single"><p><b>📍 강의장소</b> : &nbsp;<span class="${(showUpd && data.changed_address) ? "highlight" : ""}"><a href="https://map.naver.com/v5/search/${encodeURIComponent(data.address)}" target="_blank" style="text-decoration: underline; color: inherit;">${data.address} 🔗</a></span></p></div>
+                    <div class="info-single"><p><b>🎖️ 역할</b> : &nbsp;<span class="${(showUpd && data.changed_role) ? "highlight" : ""}">${data.role}</span></p></div>
                     <div style="margin-top: 10px; font-weight: bold; color: #555; font-size:13px;">📆 교육 일정 ${showUpd && data.changed_schedule ? '(변경됨)' : ''}</div>
-                    <div class="${hlSch}" style="display:inline-block; width:100%;">${schHtml}</div>
+                    <div class="${(showUpd && data.changed_schedule) ? "highlight" : ""}" style="display:inline-block; width:100%;">${schHtml}</div>
                     <button class="btn-detail-toggle" id="${prefix}-btn-toggle-${data.id}" onclick="toggleCardDetail('${data.id}', '${prefix}')">▼ 상세 내역 보기</button>
-                    <div class="detail-section" id="${prefix}-detail-${data.id}">
-                        <div class="info-grid"><p><b>⏳ 총 시간</b> : &nbsp;<span class="${hlH}">${classHours}시간</span></p><p><b>💰 시급</b> : &nbsp;<span class="${hlR}">${hourlyRate.toLocaleString()}원</span></p></div>
-                        <div class="info-grid"><p><b>➕ 추가비용</b> : &nbsp;<span class="${hlA}">${additionalCost.toLocaleString()}원</span></p><p><b>🏷️ 이용료</b> : &nbsp;${serviceFeeDisplay}</p></div>
-                        <div class="divider" style="margin: 10px 0;"></div>
-                        <p class="total-pay-detail"><b>💵 총 강사료</b> : &nbsp;<span class="${hlTotal}">${totalGrossPay.toLocaleString()}원</span></p>
-                    </div>
-                    ${data.note ? `<div class="note-box" style="${noteBoxStyle}"><b>📝 비고:</b> &nbsp;${data.note.replace(/\n/g, '<br>')}</div>` : ''}
-                    <div class="pay-status-row">
-                        ${lectureStatusBox}
-                        ${serviceStatusBox}
-                    </div>
+                    <div class="detail-section" id="${prefix}-detail-${data.id}"><div class="info-grid"><p><b>⏳ 총 시간</b> : &nbsp;<span class="${(showUpd && data.changed_hours) ? "highlight" : ""}">${classHours}시간</span></p><p><b>💰 시급</b> : &nbsp;<span class="${(showUpd && data.changed_rate) ? "highlight" : ""}">${hourlyRate.toLocaleString()}원</span></p></div><div class="info-grid"><p><b>➕ 추가비용</b> : &nbsp;<span class="${(showUpd && data.changed_addCost) ? "highlight" : ""}">${additionalCost.toLocaleString()}원</span></p><p><b>🏷️ 이용료</b> : &nbsp;${serviceFeeDisplay}</p></div><div class="divider" style="margin: 10px 0;"></div><p class="total-pay-detail"><b>💵 총 강사료</b> : &nbsp;<span>${totalGrossPay.toLocaleString()}원</span></p></div>
+                    ${data.note ? `<div class="note-box" style="${(showUpd && data.changed_note) ? "background:#e7f1ff; border-left:4px solid #0056b3; color:#0056b3; font-weight:bold;" : "background:#fef9e7; border-left:4px solid #f1c40f; color:#666;"}"><b>📝 비고:</b> &nbsp;${data.note.replace(/\n/g, '<br>')}</div>` : ''}
+                    <div class="pay-status-row">${lectureStatusBox}${serviceStatusBox}</div>
                     ${isConfirmed ? `<span class="confirmed-msg">👍 확인 완료됨</span>` : `<button class="check-btn" onclick="confirmAssignment('${data.id}')">${showUpd ? '변경된 강의내용 확인하기' : '강의 배정 확인하기'}</button>`}`;
 
                 const statusColor = isConfirmed ? '#28a745' : '#d93025';
-                cardHtml += `<div class="card" style="border-top: 5px solid ${statusColor};"><h3><span class="${hlCli}">${data.client}</span> ${updBadge}</h3>${generateCommonHtml('card')}</div>`;
-                listHtml += `<div class="list-item" style="border-left-color:${statusColor}"><div class="list-header" onclick="toggleDetail('${data.id}')"><div class="lh-info"><div class="lh-date">${data.date.split(', ')[0]}</div><div class="lh-title"><span class="${hlCli}">${data.client}</span> ${updBadge}</div></div><span class="lh-status ${isConfirmed?'st-ok':'st-wait'}">${isConfirmed?'확인완료':'확인대기'}</span></div><div class="list-body" id="detail-${data.id}">${generateCommonHtml('list')}</div></div>`;
+                cardHtml += `<div class="card ${statusBgClass}" style="border-top: 5px solid ${statusColor};"><h3><span>${data.client}</span> ${updBadge}</h3>${generateCommonHtml('card')}</div>`;
+                
+                const mainDate = data.date.split(', ')[0];
+                listHtml += `<div class="list-item ${statusBgClass}" style="border-left-color:${statusColor}"><div class="list-header" onclick="toggleDetail('${data.id}')"><div class="lh-info"><div class="lh-date">${mainDate}${getDayOfWeek(mainDate)}</div><div class="lh-title"><span>${data.client}</span> ${updBadge}</div></div><span class="lh-status ${isConfirmed?'st-ok':'st-wait'}">${isConfirmed?'확인완료':'확인대기'}</span></div><div class="list-body" id="detail-${data.id}">${generateCommonHtml('list')}</div></div>`;
             });
             cardCon.innerHTML = cardHtml; listCon.innerHTML = listHtml;
         }
 
         window.toggleDetail = (id) => { const el = document.getElementById(`detail-${id}`); el.style.display = el.style.display === 'block' ? 'none' : 'block'; }
-        window.confirmAssignment = async (docId) => {
-            if(!confirm("변경된 강의 배정 내용을 확인하셨습니까?")) return;
-            await updateDoc(doc(db, "assignments", docId), { status: "확인완료", isUpdated: false, changed_client: false, changed_subject: false, changed_address: false, changed_classRoom: false, changed_role: false, changed_schedule: false, changed_hours: false, changed_rate: false, changed_addCost: false, changed_comm: false, changed_note: false });
-        }
+        window.confirmAssignment = async (docId) => { if(!confirm("변경된 강의 배정 내용을 확인하셨습니까?")) return; await updateDoc(doc(db, "assignments", docId), { status: "확인완료", isUpdated: false, changed_client: false, changed_subject: false, changed_address: false, changed_classRoom: false, changed_role: false, changed_schedule: false, changed_hours: false, changed_rate: false, changed_addCost: false, changed_comm: false, changed_note: false }); }
         window.handleLogout = () => signOut(auth).then(() => { location.href = "index.html"; });
     </script>
 </body>
