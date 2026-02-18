@@ -12,23 +12,45 @@
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         .welcome-msg { font-size: 16px; color: #333; margin: 0; font-weight: 600; }
         
-        /* 검색 바 스타일 */
+        /* 검색 바 레이아웃 */
         .search-bar { 
             background: #fff; padding: 15px; border-radius: 12px; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; 
-            display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+            display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
         }
+        
+        /* 1. 강의처 검색: 최소 너비를 줄여서 공간 양보 */
         .search-input { 
-            padding: 10px; border: 1px solid #ddd; border-radius: 6px; 
-            font-size: 14px; flex: 1; min-width: 150px; 
+            padding: 9px; border: 1px solid #ddd; border-radius: 6px; 
+            font-size: 13.5px; 
+            flex: 1; 
+            min-width: 100px; 
+        }
+        
+        /* 2. 날짜 입력 그룹: 너비 확보 */
+        .date-group { 
+            display: flex; align-items: center; gap: 5px; 
+            flex: 0 0 auto; 
+            width: 290px;
         }
         .date-input {
-            padding: 9px; border: 1px solid #ddd; border-radius: 6px; 
-            font-size: 14px; font-family: inherit;
+            padding: 8px; border: 1px solid #ddd; border-radius: 6px; 
+            font-size: 13.5px; font-family: inherit; width: 100%;
         }
+        
+        /* 3. 드롭다운: 너비 확보 */
+        .search-select {
+            padding: 9px; border: 1px solid #ddd; border-radius: 6px; 
+            font-size: 13.5px; 
+            flex: 0 0 auto; 
+            width: 125px;
+            background-color: white;
+        }
+        
         .btn-reset {
             background-color: #6c757d; color: white; border: none; 
-            padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;
+            padding: 9px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13.5px;
+            flex: 0 0 auto;
         }
         
         .view-toggle { display: flex; background: #e9ecef; border-radius: 8px; padding: 4px; }
@@ -93,8 +115,9 @@
         .no-data-msg { text-align: center; padding: 60px 20px; color: #888; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-size: 15px; }
 
         @media (max-width: 600px) {
-            .search-bar { flex-direction: column; align-items: stretch; }
-            .date-input, .search-input { width: 100%; box-sizing: border-box; }
+            .search-bar { flex-direction: column; align-items: stretch; gap: 10px; }
+            .date-group { width: 100%; }
+            .search-input, .search-select, .btn-reset { width: 100%; box-sizing: border-box; }
         }
     </style>
 </head>
@@ -116,12 +139,28 @@
         </div>
 
         <div class="search-bar">
-            <input type="text" id="searchInput" class="search-input" placeholder="🔍 강의처 검색 (입력 시 자동 필터)">
-            <div style="display:flex; align-items:center; gap:5px; flex:1;">
-                <input type="date" id="startDate" class="date-input" style="flex:1;">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 강의처 검색">
+            
+            <div class="date-group">
+                <input type="date" id="startDate" class="date-input">
                 <span>~</span>
-                <input type="date" id="endDate" class="date-input" style="flex:1;">
+                <input type="date" id="endDate" class="date-input">
             </div>
+
+            <select id="payTeacherFilter" class="search-select">
+                <option value="all">💰 강사료: 전체</option>
+                <option value="completed">지급 완료</option>
+                <option value="waiting">지급 대기</option>
+                <option value="client_paid">의뢰처 지급</option>
+            </select>
+
+            <select id="payServiceFilter" class="search-select">
+                <option value="all">🏷️ 이용료: 전체</option>
+                <option value="completed">이용료 입금</option>
+                <option value="waiting">이용료 대기</option>
+                <option value="no_fee">이용료 없음</option>
+            </select>
+
             <button class="btn-reset" onclick="resetSearch()">초기화</button>
         </div>
 
@@ -137,7 +176,7 @@
         const firebaseConfig = { apiKey: "AIzaSyDKA0GjAlOF826TZl49y67H4oz8nMW_Jbw", authDomain: "edumaker-teacher-d97ba.firebaseapp.com", projectId: "edumaker-teacher-d97ba", storageBucket: "edumaker-teacher-d97ba.firebasestorage.app", messagingSenderId: "532708143359", appId: "1:532708143359:web:89b9933da4c868127ddcca", measurementId: "G-JJ1TF77VBJ" };
         const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
         
-        let allAssignmentsData = []; // 모든 데이터를 담을 변수
+        let allAssignmentsData = [];
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -149,55 +188,66 @@
         });
 
         function listenAssignments(email) {
-            // DB에서 전체 데이터를 불러옵니다.
             onSnapshot(query(collection(db, "assignments"), where("teacherEmail", "==", email), orderBy("createdAt", "desc")), (snapshot) => {
                 allAssignmentsData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                // 데이터를 처음 불러왔을 때는 필터 없이 전체 데이터를 그립니다.
                 filterAndRender(); 
             });
         }
 
-        // 실시간 필터링 함수
         window.filterAndRender = () => {
             const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
             const start = document.getElementById('startDate').value;
             const end = document.getElementById('endDate').value;
+            const payT = document.getElementById('payTeacherFilter').value;
+            const payS = document.getElementById('payServiceFilter').value;
 
-            // 검색 조건이 하나도 없으면 전체 데이터를 보여줍니다.
-            if (!keyword && !start && !end) {
+            if (!keyword && !start && !end && payT === 'all' && payS === 'all') {
                 renderAssignments(allAssignmentsData);
                 return;
             }
 
-            // 조건이 있으면 필터링 수행
             const filteredData = allAssignmentsData.filter(data => {
-                // 1. 강의처 검색 (키워드가 비어있으면 통과)
                 const clientMatch = !keyword || (data.client && data.client.toLowerCase().includes(keyword));
                 
-                // 2. 날짜 기간 검색 (시작/종료일이 둘 다 있어야 동작)
                 let dateMatch = true;
                 if (start && end) {
                     const dates = (data.date || "").split(', ');
-                    // 강의 날짜 중 하나라도 범위 내에 있으면 표시
                     dateMatch = dates.some(d => d >= start && d <= end);
                 }
 
-                return clientMatch && dateMatch;
+                const commRate = Number(data.commissionRate || 0);
+
+                // 강사료 필터
+                let payTMatch = true;
+                if (payT === 'completed' && (!data.isPaidTeacher || commRate > 0)) payTMatch = false;
+                if (payT === 'waiting' && (data.isPaidTeacher || commRate > 0)) payTMatch = false;
+                if (payT === 'client_paid' && commRate === 0) payTMatch = false;
+
+                // 이용료 필터
+                let paySMatch = true;
+                if (payS === 'completed' && (!data.isPaidService || commRate === 0)) paySMatch = false;
+                if (payS === 'waiting' && (data.isPaidService || commRate === 0)) paySMatch = false;
+                if (payS === 'no_fee' && commRate > 0) paySMatch = false;
+
+                return clientMatch && dateMatch && payTMatch && paySMatch;
             });
 
             renderAssignments(filteredData);
         }
 
-        // 이벤트 리스너: 입력할 때마다 필터 함수 호출
         document.getElementById('searchInput').addEventListener('input', filterAndRender);
         document.getElementById('startDate').addEventListener('change', filterAndRender);
         document.getElementById('endDate').addEventListener('change', filterAndRender);
+        document.getElementById('payTeacherFilter').addEventListener('change', filterAndRender);
+        document.getElementById('payServiceFilter').addEventListener('change', filterAndRender);
 
         window.resetSearch = () => {
             document.getElementById('searchInput').value = '';
             document.getElementById('startDate').value = '';
             document.getElementById('endDate').value = '';
-            filterAndRender(); // 초기화 후 전체 목록 다시 그리기
+            document.getElementById('payTeacherFilter').value = 'all';
+            document.getElementById('payServiceFilter').value = 'all';
+            filterAndRender();
         }
 
         window.changeView = (mode) => {
@@ -226,8 +276,7 @@
             if (!dataList || dataList.length === 0) {
                 const msg = (allAssignmentsData.length === 0) 
                     ? "📭 현재 배정된 강의 내역이 없습니다." 
-                    : "🔍 검색 조건에 맞는 강의가 없습니다.";
-                
+                    : "🔍 조건에 맞는 강의 내역이 없습니다.";
                 const noDataHtml = `<div class="no-data-msg">${msg}</div>`;
                 cardCon.innerHTML = noDataHtml; listCon.innerHTML = noDataHtml;
                 return;
@@ -258,6 +307,24 @@
                 data.date.split(', ').forEach((d, i) => { schHtml += `<div class="schedule-item"><span class="sc-date">📅 ${d}</span><span class="sc-time">⏰ ${data.time.split(', ')[i] || ''}</span></div>`; });
                 schHtml += `</div>`;
 
+                // 🔥 이용료 유무 확인
+                const commRate = Number(data.commissionRate || 0);
+                
+                // 1. 이용료 표시
+                const serviceFeeDisplay = commRate > 0
+                    ? `<span class="${hlC}">${(data.serviceFee || 0).toLocaleString()}원 (${commRate}%)</span>`
+                    : `<span style="color:#aaa;">이용료 없음</span>`;
+
+                // 2. 강사료 상태박스
+                const lectureStatusBox = commRate > 0
+                    ? `<div class="status-box" style="background:#f1f3f5; color:#aaa; border:1px solid #e9ecef;">의뢰처 지급</div>`
+                    : `<div class="status-box ${data.isPaidTeacher?'status-complete':'status-waiting'}">강사료 ${data.isPaidTeacher?'완료':'대기'}</div>`;
+
+                // 3. 이용료 상태박스
+                const serviceStatusBox = commRate > 0
+                    ? `<div class="status-box ${data.isPaidService?'status-complete':'status-waiting'}">이용료 ${data.isPaidService?'완료':'대기'}</div>`
+                    : `<div class="status-box" style="background:#f1f3f5; color:#aaa; border:1px solid #e9ecef;">이용료 없음</div>`;
+
                 const generateCommonHtml = (prefix) => `
                     <div class="info-single"><p><b>📚 강좌명</b> : &nbsp;<span class="${hlSub}">${data.subject}</span></p></div>
                     <div class="info-single"><p><b>📍 강의장소</b> : &nbsp;<span class="${hlAddr}"><a href="https://map.naver.com/v5/search/${encodeURIComponent(data.address)}" target="_blank" class="map-link" style="text-decoration: underline; color: inherit;">${data.address} 🔗</a></span></p></div>
@@ -267,14 +334,14 @@
                     <button class="btn-detail-toggle" id="${prefix}-btn-toggle-${data.id}" onclick="toggleCardDetail('${data.id}', '${prefix}')">▼ 상세 내역 보기</button>
                     <div class="detail-section" id="${prefix}-detail-${data.id}">
                         <div class="info-grid"><p><b>⏳ 총 시간</b> : &nbsp;<span class="${hlH}">${classHours}시간</span></p><p><b>💰 시급</b> : &nbsp;<span class="${hlR}">${hourlyRate.toLocaleString()}원</span></p></div>
-                        <div class="info-grid"><p><b>➕ 추가비용</b> : &nbsp;<span class="${hlA}">${additionalCost.toLocaleString()}원</span></p><p><b>🏷️ 이용료</b> : &nbsp;<span class="${hlC}">${(data.serviceFee || 0).toLocaleString()}원 (${data.commissionRate}%)</span></p></div>
+                        <div class="info-grid"><p><b>➕ 추가비용</b> : &nbsp;<span class="${hlA}">${additionalCost.toLocaleString()}원</span></p><p><b>🏷️ 이용료</b> : &nbsp;${serviceFeeDisplay}</p></div>
                         <div class="divider" style="margin: 10px 0;"></div>
                         <p class="total-pay-detail"><b>💵 총 강사료</b> : &nbsp;<span class="${hlTotal}">${totalGrossPay.toLocaleString()}원</span></p>
                     </div>
                     ${data.note ? `<div class="note-box" style="${noteBoxStyle}"><b>📝 비고:</b> &nbsp;${data.note.replace(/\n/g, '<br>')}</div>` : ''}
                     <div class="pay-status-row">
-                        <div class="status-box ${data.isPaidTeacher?'status-complete':'status-waiting'}">강사료 ${data.isPaidTeacher?'완료':'대기'}</div>
-                        <div class="status-box ${data.isPaidService?'status-complete':'status-waiting'}">이용료 ${data.isPaidService?'완료':'대기'}</div>
+                        ${lectureStatusBox}
+                        ${serviceStatusBox}
                     </div>
                     ${isConfirmed ? `<span class="confirmed-msg">👍 확인 완료됨</span>` : `<button class="check-btn" onclick="confirmAssignment('${data.id}')">${showUpd ? '변경된 강의내용 확인하기' : '강의 배정 확인하기'}</button>`}`;
 
