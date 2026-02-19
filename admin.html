@@ -24,6 +24,9 @@
         
         input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         
+        /* 🔥 [추가] 한글 입력 우선 설정 스타일 */
+        .ime-active { ime-mode: active; }
+        
         .row-group { display: flex; gap: 15px; margin-bottom: 18px; flex-wrap: wrap; }
         .half-input { flex: 1; min-width: 250px; }
         
@@ -112,22 +115,22 @@
     <div class="row-group">
         <div class="half-input">
             <label>강의처 <span class="required">*</span></label>
-            <input type="text" id="client" placeholder="예: 포항초등학교">
+            <input type="text" id="client" class="ime-active" placeholder="예: 포항초등학교">
         </div>
         <div class="half-input">
             <label>강좌명</label>
-            <input type="text" id="subject" placeholder="예: 생성형 AI 캠프">
+            <input type="text" id="subject" class="ime-active" placeholder="예: 생성형 AI 캠프">
         </div>
     </div>
 
     <div class="input-group">
-        <label>강의 장소 및 의뢰처 (주소 / 강의의뢰처)</label>
+        <label>강의 장소 및 의뢰처 (주소 / 강의의뢰처 <span class="required">*</span>)</label>
         <div class="address-row">
             <div class="addr-search-group">
-                <input type="text" id="address" placeholder="주소 직접 입력 또는 검색">
+                <input type="text" id="address" class="ime-active" placeholder="주소 직접 입력 또는 검색">
                 <button type="button" id="btnAddrSearch" class="btn-addr-search">🔍</button>
             </div>
-            <input type="text" id="requestClient" placeholder="강의의뢰처 (관리자 전용)">
+            <input type="text" id="requestClient" class="ime-active" placeholder="강의의뢰처 (필수)">
         </div>
     </div>
 
@@ -141,7 +144,7 @@
                 <option value="안전요원">안전요원</option>
                 <option value="direct">직접 입력 (기타)</option>
             </select>
-            <input type="text" id="roleInputDirect" placeholder="역할을 직접 입력하세요">
+            <input type="text" id="roleInputDirect" class="ime-active" placeholder="역할을 직접 입력하세요">
         </div>
     </div>
 
@@ -175,7 +178,7 @@
 
     <div class="input-group">
         <label>비고 (기타 전달사항)</label>
-        <textarea id="note" placeholder="특이사항을 입력하세요." style="height: 80px;"></textarea>
+        <textarea id="note" class="ime-active" placeholder="특이사항을 입력하세요." style="height: 80px;"></textarea>
     </div>
 
     <button class="btn-assign" id="assignBtn">강의 배정하기</button>
@@ -244,7 +247,6 @@
     async function fetchTeachers() {
         const teacherSelect = document.getElementById('teacherSelect');
         try {
-            // 🔥 'name' 필드 기준으로 오름차순(asc) 쿼리 생성
             const q = query(collection(db, "users"), orderBy("name", "asc"));
             const querySnapshot = await getDocs(q);
             
@@ -333,7 +335,7 @@
         const client = document.getElementById('client').value;
         const subject = document.getElementById('subject').value;
         const address = document.getElementById('address').value;
-        const requestClient = document.getElementById('requestClient').value; 
+        const requestClient = document.getElementById('requestClient').value.trim(); 
         
         let role = document.getElementById('roleSelect').value;
         if (role === 'direct') {
@@ -371,6 +373,7 @@
 
         if (!name) { alert("강사님을 선택해주세요."); return; }
         if (!client) { alert("강의처를 입력해주세요."); return; }
+        if (!requestClient) { alert("강의의뢰처를 입력해주세요."); return; }
         if (!role) { alert("역할을 선택(혹은 직접입력)해주세요."); return; }
         if (dateList.length === 0) { alert("교육 일정을 최소 1개 이상 등록해주세요."); return; }
 
@@ -386,7 +389,7 @@
                 teacherEmail: email,
                 client: client,
                 address: address || "-",
-                requestClient: requestClient || "", 
+                requestClient: requestClient, 
                 subject: subject || "내용없음",
                 role: role, 
                 date: eduDate, 
