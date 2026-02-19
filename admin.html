@@ -76,7 +76,6 @@
         .btn-add-row { background-color: #51cf66; color: white; border: none; border-radius: 8px; padding: 12px 15px; cursor: pointer; font-weight: bold; font-size: 15px; width: 100%; margin-bottom: 10px; }
         
         .btn-assign { width: 100%; padding: 16px; background-color: #0056b3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 17px; margin-top: 15px; }
-        /* 🔥 버튼 비활성화 시 스타일 추가 */
         .btn-assign:disabled { background-color: #a5c3e6; cursor: not-allowed; }
 
         .admin-footer-buttons { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
@@ -189,7 +188,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDKA0GjAlOF826TZl49y67H4oz8nMW_Jbw",
@@ -245,7 +244,10 @@
     async function fetchTeachers() {
         const teacherSelect = document.getElementById('teacherSelect');
         try {
-            const querySnapshot = await getDocs(collection(db, "users"));
+            // 🔥 'name' 필드 기준으로 오름차순(asc) 쿼리 생성
+            const q = query(collection(db, "users"), orderBy("name", "asc"));
+            const querySnapshot = await getDocs(q);
+            
             querySnapshot.forEach((doc) => {
                 const userData = doc.data();
                 if (userData.email === "help@edumaker.kr") return;
@@ -323,7 +325,6 @@
 
 
     document.getElementById('assignBtn').addEventListener('click', async () => {
-        // 🔥 중복 방지 로직 시작
         const assignBtn = document.getElementById('assignBtn');
         const selectedEmail = document.getElementById('teacherSelect').value;
         const teacherObj = teachersData.find(t => t.email === selectedEmail);
@@ -368,13 +369,11 @@
         const additionalCost = rawAdditionalCost ? Number(rawAdditionalCost) : 0;
         const commissionRate = document.getElementById('commissionRate').value ? Number(document.getElementById('commissionRate').value) : 0;
 
-        // 필수 항목 유효성 검사
         if (!name) { alert("강사님을 선택해주세요."); return; }
         if (!client) { alert("강의처를 입력해주세요."); return; }
         if (!role) { alert("역할을 선택(혹은 직접입력)해주세요."); return; }
         if (dateList.length === 0) { alert("교육 일정을 최소 1개 이상 등록해주세요."); return; }
 
-        // 🔥 버튼 비활성화 및 텍스트 변경
         assignBtn.disabled = true;
         assignBtn.innerText = "강의 배정 중... 잠시만 기다려주세요.";
 
@@ -422,7 +421,6 @@
             location.reload(); 
         } catch (error) {
             alert("오류 발생: " + error.message);
-            // 오류 발생 시 버튼 다시 활성화
             assignBtn.disabled = false;
             assignBtn.innerText = "강의 배정하기";
         }
