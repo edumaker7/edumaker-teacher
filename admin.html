@@ -22,23 +22,18 @@
         input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         .row-group { display: flex; gap: 15px; margin-bottom: 18px; flex-wrap: wrap; }
         .half-input { flex: 1; min-width: 250px; }
-        
-        .address-row { display: flex; gap: 10px; flex-wrap: wrap; }
         .addr-search-group { flex: 1; display: flex; gap: 5px; }
         .btn-addr-search { width: 50px; background-color: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
-        
         .schedule-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; align-items: center; padding: 12px; background-color: #f1f3f5; border-radius: 8px; border: 1px solid #e9ecef;}
         .schedule-row input[type="date"] { flex: 1; min-width: 140px; background: #fff; } 
         .time-picker-group { display: flex; align-items: center; gap: 5px; flex: 2; justify-content: flex-end; flex-wrap: wrap; }
         .time-set { display: flex; align-items: center; gap: 2px; background: #fff; border: 1px solid #ced4da; border-radius: 6px; padding: 0 5px; height: 45px; }
         .time-set select { width: auto !important; border: none; background: transparent; padding: 0 2px; font-size: 14px; text-align: center; height: 100%; }
         .ampm-select { font-weight: bold; color: #0056b3; width: 55px !important; }
-        
         .btn-add-row { background-color: #51cf66; color: white; border: none; border-radius: 8px; padding: 12px 15px; cursor: pointer; font-weight: bold; font-size: 15px; width: 100%; margin-bottom: 10px; }
         .btn-assign { width: 100%; padding: 16px; background-color: #0056b3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 17px; margin-top: 15px; }
         .admin-footer-buttons { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
         .btn-status-link, .btn-list-link { flex: 1; min-width: 150px; padding: 14px; background-color: #f1f3f5; color: #495057; text-align: center; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid #e9ecef; }
-        
         input[readonly] { background-color: #f8f9fa; color: #6c757d; cursor: not-allowed; }
     </style>
 </head>
@@ -50,9 +45,7 @@
     <div class="row-group">
         <div class="half-input">
             <label>강사 성함 <span class="required">*</span></label>
-            <select id="teacherSelect">
-                <option value="">강사님을 선택하세요</option>
-            </select>
+            <select id="teacherSelect"><option value="">강사님을 선택하세요</option></select>
         </div>
         <div class="half-input">
             <label>강사 이메일 (자동)</label>
@@ -113,25 +106,13 @@
     </div>
 
     <div class="row-group">
-        <div class="half-input">
-            <label>총 강의 시간</label>
-            <input type="number" id="classHours" placeholder="예: 4">
-        </div>
-        <div class="half-input">
-            <label>시간당 강사료 (원)</label>
-            <input type="text" id="hourlyRate" placeholder="예: 50,000">
-        </div>
+        <div class="half-input"><label>총 강의 시간</label><input type="number" id="classHours" placeholder="예: 4"></div>
+        <div class="half-input"><label>시간당 강사료 (원)</label><input type="text" id="hourlyRate" placeholder="예: 50,000"></div>
     </div>
 
     <div class="row-group">
-        <div class="half-input">
-            <label>추가 비용 (교통비 등)</label>
-            <input type="text" id="additionalCost" placeholder="예: 10,000">
-        </div>
-        <div class="half-input">
-            <label>서비스이용료 (%)</label>
-            <input type="number" id="commissionRate" value="0">
-        </div>
+        <div class="half-input"><label>추가 비용 (교통비 등)</label><input type="text" id="additionalCost" placeholder="예: 10,000"></div>
+        <div class="half-input"><label>서비스이용료 (%)</label><input type="number" id="commissionRate" value="0"></div>
     </div>
 
     <div class="input-group">
@@ -151,49 +132,23 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDKA0GjAlOF826TZl49y67H4oz8nMW_Jbw",
-        authDomain: "edumaker-teacher-d97ba.firebaseapp.com",
-        projectId: "edumaker-teacher-d97ba",
-        storageBucket: "edumaker-teacher-d97ba.firebasestorage.app",
-        messagingSenderId: "532708143359",
-        appId: "1:532708143359:web:89b9933da4c868127ddcca",
-        measurementId: "G-JJ1TF77VBJ"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const firebaseConfig = { apiKey: "AIzaSyDKA0GjAlOF826TZl49y67H4oz8nMW_Jbw", authDomain: "edumaker-teacher-d97ba.firebaseapp.com", projectId: "edumaker-teacher-d97ba", storageBucket: "edumaker-teacher-d97ba.firebasestorage.app", messagingSenderId: "532708143359", appId: "1:532708143359:web:89b9933da4c868127ddcca", measurementId: "G-JJ1TF77VBJ" };
+    const app = initializeApp(firebaseConfig); const db = getFirestore(app);
 
     emailjs.init("0VVyqizaUqeIcG7FU");
 
-    document.getElementById('btnAddrSearch').onclick = () => {
-        new daum.Postcode({
-            oncomplete: function(data) {
-                let addr = data.roadAddress || data.jibunAddress;
-                if(data.buildingName) addr += ` (${data.buildingName})`;
-                document.getElementById("address").value = addr;
-            }
-        }).open();
-    };
-
-    document.getElementById('roleSelect').onchange = function() {
-        document.getElementById('roleInputDirect').style.display = this.value === 'direct' ? 'block' : 'none';
-    };
+    document.getElementById('btnAddrSearch').onclick = () => { new daum.Postcode({ oncomplete: (data) => { let addr = data.roadAddress || data.jibunAddress; if(data.buildingName) addr += ` (${data.buildingName})`; document.getElementById("address").value = addr; }}).open(); };
+    document.getElementById('roleSelect').onchange = function() { document.getElementById('roleInputDirect').style.display = this.value === 'direct' ? 'block' : 'none'; };
 
     let teachersData = []; 
     async function fetchTeachers() {
         const teacherSelect = document.getElementById('teacherSelect');
         const q = query(collection(db, "users"), orderBy("name", "asc"));
         const snap = await getDocs(q);
-        
         snap.forEach((doc) => {
             const userData = doc.data();
             if (userData.email === "help@edumaker.kr") return;
-            teachersData.push({
-                name: userData.name,
-                email: userData.email,
-                phone: userData.phone || "-" 
-            });
+            teachersData.push({ name: userData.name, email: userData.email, phone: userData.phone || "-" });
             const option = document.createElement('option');
             option.value = userData.email; 
             option.text = `${userData.name} (${userData.email})`; 
@@ -203,9 +158,8 @@
     fetchTeachers();
 
     document.getElementById('teacherSelect').addEventListener('change', (e) => {
-        const selectedEmail = e.target.value;
-        const teacher = teachersData.find(t => t.email === selectedEmail);
-        document.getElementById('teacherEmail').value = selectedEmail;
+        const teacher = teachersData.find(t => t.email === e.target.value);
+        document.getElementById('teacherEmail').value = e.target.value;
         document.getElementById('teacherPhone').value = teacher ? teacher.phone : "";
     });
 
@@ -213,23 +167,7 @@
     function addScheduleRow() {
         const row = document.createElement('div');
         row.className = 'schedule-row';
-        row.innerHTML = `
-            <input type="date" class="input-date">
-            <div class="time-picker-group">
-                <div class="time-set">
-                    <select class="ampm-start ampm-select"><option value="오전">오전</option><option value="오후">오후</option></select>
-                    <select class="hour-start">${Array.from({length:12}, (_,i)=>(i+1).toString().padStart(2,'0')).map(h=>`<option>${h}</option>`)}</select> : 
-                    <select class="min-start">${['00','05','10','15','20','25','30','35','40','45','50','55'].map(m=>`<option>${m}</option>`)}</select>
-                </div>
-                <span class="tilde">~</span>
-                <div class="time-set">
-                    <select class="ampm-end ampm-select"><option value="오전">오전</option><option value="오후">오후</option></select>
-                    <select class="hour-end">${Array.from({length:12}, (_,i)=>(i+1).toString().padStart(2,'0')).map(h=>`<option>${h}</option>`)}</select> : 
-                    <select class="min-end">${['00','05','10','15','20','25','30','35','40','45','50','55'].map(m=>`<option>${m}</option>`)}</select>
-                </div>
-            </div>
-            <button type="button" onclick="this.parentElement.remove()" style="background:#ff6b6b; color:white; border:none; border-radius:6px; width:30px; height:30px; cursor:pointer;">-</button>
-        `;
+        row.innerHTML = `<input type="date" class="input-date"><div class="time-picker-group"><div class="time-set"><select class="ampm-start ampm-select"><option value="오전">오전</option><option value="오후">오후</option></select><select class="hour-start">${Array.from({length:12}, (_,i)=>(i+1).toString().padStart(2,'0')).map(h=>`<option>${h}</option>`)}</select>:<select class="min-start">${['00','05','10','15','20','25','30','35','40','45','50','55'].map(m=>`<option>${m}</option>`)}</select></div><span class="tilde">~</span><div class="time-set"><select class="ampm-end ampm-select"><option value="오전">오전</option><option value="오후">오후</option></select><select class="hour-end">${Array.from({length:12}, (_,i)=>(i+1).toString().padStart(2,'0')).map(h=>`<option>${h}</option>`)}</select>:<select class="min-end">${['00','05','10','15','20','25','30','35','40','45','50','55'].map(m=>`<option>${m}</option>`)}</select></div></div><button type="button" onclick="this.parentElement.remove()" style="background:#ff6b6b; color:white; border:none; border-radius:6px; width:30px; height:30px; cursor:pointer;">-</button>`;
         scheduleContainer.appendChild(row);
     }
     addScheduleRow();
@@ -239,67 +177,42 @@
         const btn = document.getElementById('assignBtn');
         const selectedEmail = document.getElementById('teacherSelect').value;
         const teacherObj = teachersData.find(t => t.email === selectedEmail);
-        
         const name = teacherObj ? teacherObj.name : "";
         const phone = teacherObj ? teacherObj.phone : "-";
         const client = document.getElementById('client').value;
         const requestClient = document.getElementById('requestClient').value.trim();
         const role = document.getElementById('roleSelect').value === 'direct' ? document.getElementById('roleInputDirect').value : document.getElementById('roleSelect').value;
-        
-        if (!name || !client || !requestClient || !role) return alert("필수 항목을 모두 입력해주세요.");
+        const noteValue = document.getElementById('note').value; // ✅ 비고 값 가져오기
 
-        btn.disabled = true;
-        btn.innerText = "처리 중...";
+        if (!name || !client || !requestClient || !role) return alert("필수 항목을 모두 입력해주세요.");
+        btn.disabled = true; btn.innerText = "처리 중...";
 
         try {
             const classHours = Number(document.getElementById('classHours').value) || 0;
             const hourlyRate = Number(document.getElementById('hourlyRate').value.replace(/,/g,'')) || 0;
             const additionalCost = Number(document.getElementById('additionalCost').value.replace(/,/g,'')) || 0;
             const commissionRate = Number(document.getElementById('commissionRate').value) || 0;
-            const serviceFee = Math.floor((classHours * hourlyRate) * (commissionRate / 100));
-
             const dateList = Array.from(document.querySelectorAll('.input-date')).map(el => el.value).filter(v => v);
             const timeList = Array.from(document.querySelectorAll('.schedule-row')).map(row => {
                 return `${row.querySelector('.ampm-start').value} ${row.querySelector('.hour-start').value}:${row.querySelector('.min-start').value} ~ ${row.querySelector('.ampm-end').value} ${row.querySelector('.hour-end').value}:${row.querySelector('.min-end').value}`;
             });
 
+            // ✅ assignments 컬렉션에 note 필드를 확실히 포함하여 저장
             await addDoc(collection(db, "assignments"), {
-                teacherName: name,
-                teacherEmail: selectedEmail,
-                phone: phone, // 배정 내역에 전화번호 동시 저장
-                client: client,
-                requestClient: requestClient,
+                teacherName: name, teacherEmail: selectedEmail, phone: phone,
+                client: client, requestClient: requestClient,
                 address: document.getElementById('address').value || "-",
                 subject: document.getElementById('subject').value || "-",
-                role: role,
-                date: dateList.join(', '),
-                time: timeList.join(', '),
-                classHours: classHours,
-                hourlyRate: hourlyRate,
-                additionalCost: additionalCost,
-                commissionRate: commissionRate,
-                serviceFee: serviceFee,
-                status: "배정완료",
-                isFinished: false,
-                isPaidTeacher: false,
-                isPaidService: false,
-                createdAt: new Date()
+                role: role, date: dateList.join(', '), time: timeList.join(', '),
+                classHours: classHours, hourlyRate: hourlyRate, additionalCost: additionalCost,
+                commissionRate: commissionRate, serviceFee: Math.floor((classHours * hourlyRate) * (commissionRate / 100)),
+                note: noteValue, // 👈 여기가 누락되어 있었습니다!
+                status: "배정완료", isFinished: false, isPaidTeacher: false, isPaidService: false, createdAt: new Date()
             });
 
-            await emailjs.send('service_6f7u7om', 'template_05mv50b', {
-                teacherEmail: selectedEmail,
-                teacherName: name,
-                client: client,
-                date: dateList.join(', '),
-                subject: document.getElementById('subject').value || "강의 배정 알림"
-            });
-
-            alert("배정이 완료되었습니다!");
-            location.reload();
-        } catch (e) {
-            alert("오류 발생: " + e.message);
-            btn.disabled = false;
-        }
+            await emailjs.send('service_6f7u7om', 'template_05mv50b', { teacherEmail: selectedEmail, teacherName: name, client: client, date: dateList.join(', '), subject: document.getElementById('subject').value || "강의 배정 알림" });
+            alert("배정이 완료되었습니다!"); location.reload();
+        } catch (e) { alert("오류 발생: " + e.message); btn.disabled = false; }
     };
 </script>
 </body>
