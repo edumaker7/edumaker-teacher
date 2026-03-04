@@ -17,7 +17,6 @@
         .date-input { padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13.5px; font-family: inherit; width: 100%; }
         .search-select { padding: 9px; border: 1px solid #ddd; border-radius: 6px; font-size: 13.5px; flex: 0 0 auto; width: 125px; background-color: white; }
         
-        /* 버튼 스타일 */
         .btn-reset { background-color: #6c757d; color: white; border: none; padding: 9px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13.5px; flex: 0 0 auto; }
         .btn-excel { background-color: #28a745; color: white; border: none; padding: 9px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13.5px; flex: 0 0 auto; display: flex; align-items: center; gap: 5px; }
 
@@ -45,7 +44,16 @@
         .info-grid p { margin: 0 !important; font-size: 13px; color: #555; display: flex; align-items: flex-start; line-height: 1.4; }
         .info-grid b { color: #333; width: 70px; flex-shrink: 0; display: inline-block; }
         .upd-badge { background: #d93025; color: white; font-size: 10px; padding: 2px 5px; border-radius: 4px; margin-left: 8px; }
-        .highlight { color: #0056b3 !important; font-weight: bold; background: #e7f1ff; border-radius: 4px; padding: 1px 4px; display: inline; word-break: break-all; }
+        
+        .highlight { 
+            background-color: #f3e5f5 !important; 
+            border: 1px dashed #ce93d8 !important; 
+            font-weight: bold; 
+            color: #7b1fa2 !important; 
+            border-radius: 4px; 
+            padding: 2px 4px; 
+        }
+        
         .schedule-list { background-color: rgba(0,0,0,0.04); padding: 10px; border-radius: 8px; margin: 4px 0 6px 0; font-size: 13px; }
         .schedule-item { margin-bottom: 3px; display: flex; gap: 8px; }
         .sc-date { font-weight: bold; color: #0056b3; }
@@ -108,7 +116,7 @@
         const firebaseConfig = { apiKey: "AIzaSyDKA0GjAlOF826TZl49y67H4oz8nMW_Jbw", authDomain: "edumaker-teacher-d97ba.firebaseapp.com", projectId: "edumaker-teacher-d97ba", storageBucket: "edumaker-teacher-d97ba.firebasestorage.app", messagingSenderId: "532708143359", appId: "1:532708143359:web:89b9933da4c868127ddcca", measurementId: "G-JJ1TF77VBJ" };
         const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
         let allAssignmentsData = [];
-        let filteredAssignmentsData = []; // 엑셀 다운로드를 위해 필터링된 데이터 저장
+        let filteredAssignmentsData = [];
 
         function getDayOfWeek(dateStr) {
             const week = ['일', '월', '화', '수', '목', '금', '토'];
@@ -156,43 +164,19 @@
             renderAssignments(filteredAssignmentsData);
         }
 
-        // ✅ 엑셀 다운로드 함수 추가
         window.downloadExcel = function() {
-            if (filteredAssignmentsData.length === 0) {
-                alert("다운로드할 강의 내역이 없습니다.");
-                return;
-            }
-
-            const excelData = filteredAssignmentsData.map(data => {
-                const classHours = Number(data.classHours || 0);
-                const hourlyRate = Number(data.hourlyRate || 0);
-                const additionalCost = Number(data.additionalCost || 0);
-                const totalGrossPay = (classHours * hourlyRate) + additionalCost;
-                
-                return {
-                    "강의처": data.client,
-                    "강좌명": data.subject,
-                    "교육날짜": data.date,
-                    "교육시간": data.time,
-                    "역할": data.role,
-                    "총 시간": classHours + "시간",
-                    "시급": hourlyRate.toLocaleString() + "원",
-                    "추가비용": additionalCost.toLocaleString() + "원",
-                    "총 강사료": totalGrossPay.toLocaleString() + "원",
-                    "이용료": (data.serviceFee || 0).toLocaleString() + "원",
-                    "배정상태": data.status === '확인완료' ? '확인완료' : '확인대기',
-                    "정산상태": data.isFinished ? '완료' : '대기',
-                    "비고": data.note || ""
-                };
-            });
-
+            if (filteredAssignmentsData.length === 0) { alert("다운로드할 강의 내역이 없습니다."); return; }
+            const excelData = filteredAssignmentsData.map(data => ({
+                "강의처": data.client, "강좌명": data.subject, "교육날짜": data.date, "교육시간": data.time,
+                "역할": data.role, "총 시간": (data.classHours || 0) + "시간", "시급": (data.hourlyRate || 0).toLocaleString() + "원",
+                "추가비용": (data.additionalCost || 0).toLocaleString() + "원", "총 강사료": ((Number(data.classHours||0) * Number(data.hourlyRate||0)) + Number(data.additionalCost||0)).toLocaleString() + "원",
+                "이용료": (data.serviceFee || 0).toLocaleString() + "원", "배정상태": data.status === '확인완료' ? '확인완료' : '확인대기',
+                "정산상태": data.isFinished ? '완료' : '대기', "비고": data.note || ""
+            }));
             const worksheet = XLSX.utils.json_to_sheet(excelData);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "강의내역");
-            
-            // 파일명에 오늘 날짜 포함
-            const today = new Date().toISOString().slice(0, 10);
-            XLSX.writeFile(workbook, `에듀메이커_강의내역_${today}.xlsx`);
+            XLSX.writeFile(workbook, `에듀메이커_강의내역_${new Date().toISOString().slice(0, 10)}.xlsx`);
         };
 
         document.getElementById('searchInput').addEventListener('input', filterAndRender);
@@ -211,51 +195,68 @@
 
             dataList.forEach(data => {
                 const classHours = Number(data.classHours || 0); const hourlyRate = Number(data.hourlyRate || 0); const additionalCost = Number(data.additionalCost || 0);
-                const lectureFee = classHours * hourlyRate; const totalGrossPay = lectureFee + additionalCost;
-                const isConfirmed = data.status === '확인완료'; const showUpd = data.isUpdated && !isConfirmed;
-                const updBadge = showUpd ? `<span class="upd-badge">내용변경</span>` : "";
+                const totalGrossPay = (classHours * hourlyRate) + additionalCost;
+                const isConfirmed = data.status === '확인완료';
                 const isFinished = data.isFinished || false;
+                
+                const updatedFields = data.updatedFields || [];
+                const showUpd = data.isUpdated && !isConfirmed;
+                const updBadge = showUpd ? `<span class="upd-badge">내용변경</span>` : "";
 
-                let statusBgClass = isFinished ? "finished" : "";
+                const getHl = (fieldName) => (showUpd && updatedFields.includes(fieldName)) ? "highlight" : "";
 
                 let schHtml = `<div class="schedule-list">`;
-                data.date.split(', ').forEach((d, i) => { 
-                    schHtml += `<div class="schedule-item"><span class="sc-date">📅 ${d}${getDayOfWeek(d)}</span><span class="sc-time">⏰ ${data.time.split(', ')[i] || ''}</span></div>`; 
+                const dates = (data.date || "").split(', ');
+                const times = (data.time || "").split(', ');
+                dates.forEach((d, i) => { 
+                    schHtml += `<div class="schedule-item"><span class="sc-date">📅 ${d}${getDayOfWeek(d)}</span><span class="sc-time">⏰ ${times[i] || ''}</span></div>`; 
                 });
                 schHtml += `</div>`;
 
                 const requestClientName = (data.requestClient || "").trim();
                 const lectureStatusBox = (requestClientName === "에듀메이커")
-                    ? `<div class="status-box ${data.isPaidTeacher?'status-complete':'status-waiting'}">강사료 ${data.isPaidTeacher?'완료':'대기'}</div>`
+                    ? `<div class="status-box ${getHl('isPaidTeacher')} ${data.isPaidTeacher?'status-complete':'status-waiting'}">강사료 ${data.isPaidTeacher?'완료':'대기'}</div>`
                     : `<div class="status-box" style="background:rgba(0,0,0,0.05); color:#aaa;">의뢰처 직접 지급</div>`;
 
                 const commRate = Number(data.commissionRate || 0);
-                const serviceFeeDisplay = commRate > 0 ? `<span>${(data.serviceFee || 0).toLocaleString()}원 (${commRate}%)</span>` : `<span style="color:#aaa;">이용료 없음</span>`;
-                const serviceStatusBox = commRate > 0 ? `<div class="status-box ${data.isPaidService?'status-complete':'status-waiting'}">이용료 ${data.isPaidService?'완료':'대기'}</div>` : `<div class="status-box" style="background:rgba(0,0,0,0.05); color:#aaa;">이용료 없음</div>`;
+                const serviceFeeDisplay = commRate > 0 ? `<span class="${getHl('commissionRate')}">${(data.serviceFee || 0).toLocaleString()}원 (${commRate}%)</span>` : `<span style="color:#aaa;">이용료 없음</span>`;
+                const serviceStatusBox = commRate > 0 ? `<div class="status-box ${getHl('isPaidService')} ${data.isPaidService?'status-complete':'status-waiting'}">이용료 ${data.isPaidService?'완료':'대기'}</div>` : `<div class="status-box" style="background:rgba(0,0,0,0.05); color:#aaa;">이용료 없음</div>`;
 
                 const generateCommonHtml = (prefix) => `
-                    <div class="info-single"><p><b>📚 강좌명</b> : &nbsp;<span class="${(showUpd && data.changed_subject) ? "highlight" : ""}">${data.subject}</span></p></div>
-                    <div class="info-single"><p><b>📍 강의장소</b> : &nbsp;<span class="${(showUpd && data.changed_address) ? "highlight" : ""}"><a href="https://map.naver.com/v5/search/${encodeURIComponent(data.address)}" target="_blank" style="text-decoration: underline; color: inherit;">${data.address} 🔗</a></span></p></div>
-                    <div class="info-single"><p><b>🎖️ 역할</b> : &nbsp;<span class="${(showUpd && data.changed_role) ? "highlight" : ""}">${data.role}</span></p></div>
-                    <div style="margin-top: 10px; font-weight: bold; color: #555; font-size:13px;">📆 교육 일정 ${showUpd && data.changed_schedule ? '(변경됨)' : ''}</div>
-                    <div class="${(showUpd && data.changed_schedule) ? "highlight" : ""}" style="display:inline-block; width:100%;">${schHtml}</div>
+                    <div class="info-single"><p><b>🏫 강의처</b> : &nbsp;<span class="${getHl('client')}">${data.client}</span></p></div>
+                    <div class="info-single"><p><b>📚 강좌명</b> : &nbsp;<span class="${getHl('subject')}">${data.subject}</span></p></div>
+                    <div class="info-single"><p><b>📍 강의장소</b> : &nbsp;<span class="${getHl('address')}"><a href="https://map.naver.com/v5/search/${encodeURIComponent(data.address)}" target="_blank" style="text-decoration: underline; color: inherit;">${data.address} 🔗</a></span></p></div>
+                    <div class="info-single"><p><b>🎖️ 역할</b> : &nbsp;<span class="${getHl('role')}">${data.role}</span></p></div>
+                    <div style="margin-top: 10px; font-weight: bold; color: #555; font-size:13px;">📆 교육 일정 ${(getHl('date') || getHl('time')) ? '<span class="upd-badge" style="background:#e67e22">변경</span>' : ''}</div>
+                    <div class="${(getHl('date') || getHl('time')) ? 'highlight' : ''}" style="display:inline-block; width:100%;">${schHtml}</div>
                     <button class="btn-detail-toggle" id="${prefix}-btn-toggle-${data.id}" onclick="toggleCardDetail('${data.id}', '${prefix}')">▼ 상세 내역 보기</button>
-                    <div class="detail-section" id="${prefix}-detail-${data.id}"><div class="info-grid"><p><b>⏳ 총 시간</b> : &nbsp;<span class="${(showUpd && data.changed_hours) ? "highlight" : ""}">${classHours}시간</span></p><p><b>💰 시급</b> : &nbsp;<span class="${(showUpd && data.changed_rate) ? "highlight" : ""}">${hourlyRate.toLocaleString()}원</span></p></div><div class="info-grid"><p><b>➕ 추가비용</b> : &nbsp;<span class="${(showUpd && data.changed_addCost) ? "highlight" : ""}">${additionalCost.toLocaleString()}원</span></p><p><b>🏷️ 이용료</b> : &nbsp;${serviceFeeDisplay}</p></div><div class="divider" style="margin: 10px 0;"></div><p class="total-pay-detail"><b>💵 총 강사료</b> : &nbsp;<span>${totalGrossPay.toLocaleString()}원</span></p></div>
-                    ${data.note ? `<div class="note-box" style="${(showUpd && data.changed_note) ? "background:#e7f1ff; border-left:4px solid #0056b3; color:#0056b3; font-weight:bold;" : "background:#fef9e7; border-left:4px solid #f1c40f; color:#666;"}"><b>📝 비고:</b> &nbsp;${data.note.replace(/\n/g, '<br>')}</div>` : ''}
+                    <div class="detail-section" id="${prefix}-detail-${data.id}">
+                        <div class="info-grid">
+                            <p><b>⏳ 총 시간</b> : &nbsp;<span class="${getHl('classHours')}">${classHours}시간</span></p>
+                            <p><b>💰 시급</b> : &nbsp;<span class="${getHl('hourlyRate')}">${hourlyRate.toLocaleString()}원</span></p>
+                        </div>
+                        <div class="info-grid">
+                            <p><b>➕ 추가비용</b> : &nbsp;<span class="${getHl('additionalCost')}">${additionalCost.toLocaleString()}원</span></p>
+                            <p><b>🏷️ 이용료</b> : &nbsp;${serviceFeeDisplay}</p>
+                        </div>
+                        <div class="divider" style="margin: 10px 0;"></div>
+                        <p class="total-pay-detail"><b>💵 총 강사료</b> : &nbsp;<span>${totalGrossPay.toLocaleString()}원</span></p>
+                    </div>
+                    ${data.note ? `<div class="note-box ${getHl('note')}" style="background:#fef9e7; border-left:4px solid #f1c40f; color:#666;"><b>📝 비고:</b> &nbsp;${data.note.replace(/\n/g, '<br>')}</div>` : ''}
                     <div class="pay-status-row">${lectureStatusBox}${serviceStatusBox}</div>
                     ${isConfirmed ? `<span class="confirmed-msg">👍 확인 완료됨</span>` : `<button class="check-btn" onclick="confirmAssignment('${data.id}')">${showUpd ? '변경된 강의내용 확인하기' : '강의 배정 확인하기'}</button>`}`;
 
                 const statusColor = isConfirmed ? '#28a745' : '#d93025';
-                cardHtml += `<div class="card ${statusBgClass}" style="border-top: 5px solid ${statusColor};"><h3><span>${data.client}</span> ${updBadge}</h3>${generateCommonHtml('card')}</div>`;
+                cardHtml += `<div class="card ${isFinished?'finished':''}" style="border-top: 5px solid ${statusColor};"><h3><span>${data.client}</span> ${updBadge}</h3>${generateCommonHtml('card')}</div>`;
                 
-                const mainDate = data.date.split(', ')[0];
-                listHtml += `<div class="list-item ${statusBgClass}" style="border-left-color:${statusColor}"><div class="list-header" onclick="toggleDetail('${data.id}')"><div class="lh-info"><div class="lh-date">${mainDate}${getDayOfWeek(mainDate)}</div><div class="lh-title"><span>${data.client}</span> ${updBadge}</div></div><span class="lh-status ${isConfirmed?'st-ok':'st-wait'}">${isConfirmed?'확인완료':'확인대기'}</span></div><div class="list-body" id="detail-${data.id}">${generateCommonHtml('list')}</div></div>`;
+                const mainDate = (data.date || "").split(', ')[0];
+                listHtml += `<div class="list-item ${isFinished?'finished':''}" style="border-left-color:${statusColor}"><div class="list-header" onclick="toggleDetail('${data.id}')"><div class="lh-info"><div class="lh-date">${mainDate}${getDayOfWeek(mainDate)}</div><div class="lh-title"><span>${data.client}</span> ${updBadge}</div></div><span class="lh-status ${isConfirmed?'st-ok':'st-wait'}">${isConfirmed?'확인완료':'확인대기'}</span></div><div class="list-body" id="detail-${data.id}">${generateCommonHtml('list')}</div></div>`;
             });
             cardCon.innerHTML = cardHtml; listCon.innerHTML = listHtml;
         }
 
         window.toggleDetail = (id) => { const el = document.getElementById(`detail-${id}`); el.style.display = el.style.display === 'block' ? 'none' : 'block'; }
-        window.confirmAssignment = async (docId) => { if(!confirm("변경된 강의 배정 내용을 확인하셨습니까?")) return; await updateDoc(doc(db, "assignments", docId), { status: "확인완료", isUpdated: false, changed_client: false, changed_subject: false, changed_address: false, changed_classRoom: false, changed_role: false, changed_schedule: false, changed_hours: false, changed_rate: false, changed_addCost: false, changed_comm: false, changed_note: false }); }
+        window.confirmAssignment = async (docId) => { if(!confirm("변경된 강의 배정 내용을 확인하셨습니까?")) return; await updateDoc(doc(db, "assignments", docId), { status: "확인완료", isUpdated: false, updatedFields: [] }); }
         window.handleLogout = () => signOut(auth).then(() => { location.href = "index.html"; });
     </script>
 </body>

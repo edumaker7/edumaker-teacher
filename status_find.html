@@ -46,12 +46,24 @@
         .row-finished, .row-finished td { background-color: #fffde7 !important; }
 
         .note-container { 
-            font-size: 12px; color: #444; max-height: 95px; overflow-y: auto; 
+            font-size: 12px; color: #444; max-height: 110px; overflow-y: auto; 
             text-align: left !important; line-height: 1.6; padding: 5px 8px;
             white-space: pre-line; word-break: break-all;
             background-color: transparent !important;
             border: 1px solid rgba(0,0,0,0.06); border-radius: 4px; display: block;
         }
+
+        .admin-note-section {
+            margin-top: 8px;
+            padding: 5px;
+            border-top: 1px dashed #d1d1d1;
+            color: #d9480f; 
+            background-color: #fff4e6; 
+            font-weight: 600;
+            font-size: 11px;
+            border-radius: 4px;
+        }
+
         .note-container::-webkit-scrollbar { width: 4px; }
         .note-container::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
 
@@ -69,7 +81,6 @@
         .summary-bar { margin-top: 20px; background-color: #f8f9fa; border: 2px solid #343a40; border-radius: 12px; padding: 20px 30px; display: flex; justify-content: flex-end; align-items: center; gap: 30px; }
         .purple-text { color: #6741d9; font-weight: 600; }
         .profit-text { color: #003399; font-weight: 800; }
-        /* ✅ 추가비용 색상 통일 */
         .add-cost-text { color: #444; font-size: 11px; font-weight: 600; }
     </style>
 </head>
@@ -144,7 +155,6 @@
     onSnapshot(query(collection(db, "assignments"), orderBy("createdAt", "desc"), limit(500)), (sn) => {
         let rawData = sn.docs.map(d => ({ id: d.id, data: d.data() })).filter(item => {
             const rc = item.data.requestClient || "";
-            // ✅ '찾학컨' 키워드가 포함된 데이터만 필터링
             return rc.includes('찾학컨');
         });
         rawData.sort((a, b) => ((b.data.date || "").split(', ')[0] || "0000-00-00").localeCompare((a.data.date || "").split(', ')[0] || "0000-00-00"));
@@ -191,6 +201,14 @@
             const lecCheckHtml = (req === "에듀메이커") ? `<label><input type="checkbox" ${d.isPaidTeacher ? 'checked' : ''} onchange="updatePayStatus('${item.id}', 'isPaidTeacher', this.checked)"> 강사료완료</label>` : `<span style="color:#aaa; font-size:10px;">(의뢰처 직접 지급)</span>`;
             const serCheckHtml = (fee > 0) ? `<label><input type="checkbox" ${d.isPaidService ? 'checked' : ''} onchange="updatePayStatus('${item.id}', 'isPaidService', this.checked)"> 이용료확인</label>` : `<span style="color:#aaa; font-size:10px;">(이용료 없음)</span>`;
 
+            let finalNoteHtml = `<div class="note-container">`;
+            finalNoteHtml += (d.note && d.note.trim()) ? d.note.trim() : '-';
+            
+            if (d.adminNote && d.adminNote.trim()) {
+                finalNoteHtml += `<div class="admin-note-section">${d.adminNote.trim()}</div>`;
+            }
+            finalNoteHtml += `</div>`;
+
             html += `
                 <tr class="${d.isFinished ? 'row-finished' : (d.isClassFinished ? 'row-class-finished' : '')}">
                     <td class="col-no">${item.virtualNo}</td>
@@ -200,7 +218,7 @@
                     <td class="col-pay">${hrs}h<br>${rate.toLocaleString()}<br><b>${totalPay.toLocaleString()}</b></td>
                     <td class="col-total">${aHrs}h<br>${orig.toLocaleString()}<br><span class="purple-text">${totalOrig.toLocaleString()}</span></td>
                     <td class="col-extra"><span class="add-cost-text">${add.toLocaleString()}</span><br><span style="color:#0056b3;">${fee.toLocaleString()}</span></td>
-                    <td class="col-note"><div class="note-container">${d.note ? d.note.trim() : '-'}</div></td>
+                    <td class="col-note">${finalNoteHtml}</td>
                     <td class="col-chk"><div class="chk-group">${lecCheckHtml}${serCheckHtml}<label><input type="checkbox" ${d.isClassFinished ? 'checked' : ''} onchange="updatePayStatus('${item.id}', 'isClassFinished', this.checked)"> 수업종료</label></div></td>
                     <td class="col-manage"><div class="btn-group"><button class="${d.status === '확인완료' ? 'btn-confirm-ok' : 'btn-confirm-wait'}">${d.status === '확인완료' ? '확인됨' : '대기중'}</button><button class="${d.isFinished ? 'btn-restore' : 'btn-finish'}" onclick="toggleFinishStatus('${item.id}', ${d.isFinished})">${d.isFinished ? '복구' : '완료'}</button><button class="btn-edit" onclick="window.open('edit.html?id=${item.id}')">수정</button><button class="btn-delete" onclick="deleteAssignment('${item.id}', '${d.subject}', '${d.teacherName}')">삭제</button></div></td>
                 </tr>`;
@@ -230,23 +248,7 @@
             const originalFee = Number(d.originalFee || 0);
             
             return { 
-                "번호": item.virtualNo, 
-                "교육일자": d.date, 
-                "강사명": d.teacherName, 
-                "의뢰처": d.requestClient || "-", 
-                "강의처": d.client, 
-                "강좌명": d.subject, 
-                "역할": d.role, 
-                "시간": hrs, 
-                "추가비용": addCost, 
-                "시급": hourlyRate, 
-                "합계": (hrs * hourlyRate) + addCost,
-                "원강의시간": aHrs,
-                "원시급": originalFee,
-                "원강사료": aHrs * originalFee,
-                "서비스 이용료": d.serviceFee || 0,
-                "비고": d.note || "", 
-                "완료여부": d.isFinished ? "완료" : "진행중" 
+                "번호": item.virtualNo, "교육일자": d.date, "강사명": d.teacherName, "의뢰처": d.requestClient || "-", "강의처": d.client, "강좌명": d.subject, "역할": d.role, "시간": hrs, "추가비용": addCost, "시급": hourlyRate, "합계": (hrs * hourlyRate) + addCost, "원강의시간": aHrs, "원시급": originalFee, "원강사료": aHrs * originalFee, "서비스 이용료": d.serviceFee || 0, "비고": d.note || "", "관리자기록": d.adminNote || "", "완료여부": d.isFinished ? "완료" : "진행중" 
             };
         });
         const worksheet = XLSX.utils.json_to_sheet(excelData); const workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "찾학컨현황");
