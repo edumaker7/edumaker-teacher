@@ -5,23 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>아이디 찾기 - EDUMAKER</title>
     <style>
-        body { font-family: 'Pretendard', sans-serif; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        @import url('https://cdn.rawgit.com/moonspam/NanumSquare/master/nanumsquare.css');
+
+        body { font-family: 'NanumSquare', sans-serif; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         
-        /* 🔥 [수정] 고정 폭 대신 최대 폭을 사용하여 작은 화면 대응 */
         .popup-box { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 350px; text-align: center; box-sizing: border-box; }
         
-        .logo { font-size: 24px; font-weight: 900; color: #0056b3; margin-bottom: 20px; }
+        .logo { font-size: 24px; font-weight: 900; color: #39B54A; margin-bottom: 20px; }
         .input-group { text-align: left; margin-bottom: 15px; }
         label { display: block; font-size: 13px; font-weight: 700; color: #495057; margin-bottom: 8px; }
         
-        /* 🔥 [수정] 아이폰 확대 방지 (16px) */
-        input { width: 100%; padding: 12px; border: 1px solid #dee2e6; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
+        input { width: 100%; padding: 12px; border: 1px solid #dee2e6; border-radius: 10px; box-sizing: border-box; font-size: 16px; font-family: 'NanumSquare', sans-serif; }
         
-        .btn-find { width: 100%; padding: 14px; background-color: #0056b3; color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; }
-        .btn-find:hover { background-color: #004494; }
+        .btn-find { width: 100%; padding: 14px; background-color: #39B54A; color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; font-family: 'NanumSquare', sans-serif; }
+        .btn-find:hover { background-color: #2e933c; }
         
         #result { margin-top: 20px; padding: 15px; border-radius: 10px; display: none; font-size: 14px; line-height: 1.6; word-break: break-all; }
-        .result-success { background-color: #e7f1ff; color: #0056b3; border: 1px solid #cfe2ff; }
+        .result-success { background-color: #f0f9f1; color: #39B54A; border: 1px solid #e1f0e3; }
         .result-fail { background-color: #fff2f2; color: #dc3545; border: 1px solid #ffcccc; }
     </style>
 </head>
@@ -62,7 +62,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 전화번호 자동 하이픈 기능
     document.getElementById('phone').addEventListener('input', (e) => {
         e.target.value = e.target.value.replace(/[^0-9]/g, '')
             .replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
@@ -79,7 +78,6 @@
         }
 
         try {
-            // DB에서 이름과 전화번호가 모두 일치하는 사용자 검색
             const q = query(collection(db, "users"), where("name", "==", name), where("phone", "==", phone));
             const querySnapshot = await getDocs(q);
 
@@ -93,7 +91,6 @@
                 querySnapshot.forEach(doc => emails.push(doc.data().email));
                 
                 resultDiv.className = 'result-success';
-                // 여러 계정이 있을 경우 쉼표로 구분하여 보여줌
                 resultDiv.innerHTML = `검색 결과:<br><b>${emails.join(", ")}</b>`;
             }
         } catch (e) {

@@ -4,22 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>에듀메이커 - 강사 회원가입</title>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
-        body { font-family: 'Pretendard', sans-serif; background-color: #f4f7f9; padding: 20px; margin: 0; }
+        @import url('https://cdn.rawgit.com/moonspam/NanumSquare/master/nanumsquare.css');
+
+        body { font-family: 'NanumSquare', sans-serif; background-color: #f4f7f9; padding: 20px; margin: 0; }
         .signup-container { background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); max-width: 450px; margin: 40px auto; }
-        .logo { font-size: 24px; font-weight: 800; color: #0056b3; text-align: center; margin-bottom: 25px; cursor: pointer; }
+        
+        /* ✅ EDUMAKER 텍스트 색상 수정 (#39B54A) */
+        .logo { font-size: 24px; font-weight: 800; color: #39B54A; text-align: center; margin-bottom: 25px; cursor: pointer; }
+        
         .input-group { margin-bottom: 18px; }
         label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 5px; }
         .required { color: #d93025; margin-left: 2px; }
         .guide-text { font-size: 11px; color: #d93025; font-weight: normal; margin-left: 5px; letter-spacing: -0.5px; }
         
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; font-family: 'NanumSquare', sans-serif; }
         
+        /* ✅ 버튼 색상 수정 (#39B54A) */
         .btn-signup { 
-            width: 100%; padding: 15px; background-color: #0056b3; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s;
+            width: 100%; padding: 15px; background-color: #39B54A; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; font-family: 'NanumSquare', sans-serif;
         }
-        .btn-signup:hover { background-color: #004494; }
+        .btn-signup:hover { background-color: #2e933c; }
         
         .btn-signup:disabled {
             background-color: #a0a0a0;
@@ -28,13 +33,17 @@
         
         .footer-links { margin-top: 20px; text-align: center; font-size: 13px; color: #888; }
         .footer-links a { text-decoration: none; color: #666; cursor: pointer; transition: 0.2s; }
-        .footer-links a:hover { color: #0056b3; text-decoration: underline; }
+        /* ✅ 링크 호버 시 색상 수정 */
+        .footer-links a:hover { color: #39B54A; text-decoration: underline; }
         .footer-divider { margin: 0 10px; color: #ddd; }
         
         .privacy-agreement { background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 25px 0; border: 1px solid #eee; }
         .privacy-label { display: flex; align-items: center; cursor: pointer; font-size: 13px; color: #333; font-weight: 500; }
         .privacy-label input[type="checkbox"] { width: 18px; height: 18px; margin-right: 10px; cursor: pointer; }
+        /* ✅ 개인정보처리방침 링크 색상 수정 */
+        .privacy-label a { text-decoration: underline; color: #39B54A; }
     </style>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 <div class="signup-container">
@@ -72,7 +81,7 @@
     <div class="privacy-agreement">
         <label class="privacy-label">
             <input type="checkbox" id="privacyCheck">
-            <span>(필수) <a onclick="openPrivacyPopup()" style="text-decoration: underline; color: #0056b3;">개인정보처리방침</a>에 동의합니다.</span>
+            <span>(필수) <a onclick="openPrivacyPopup()">개인정보처리방침</a>에 동의합니다.</span>
         </label>
     </div>
 
