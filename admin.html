@@ -204,7 +204,25 @@
     function addScheduleRow() {
         const row = document.createElement('div');
         row.className = 'schedule-row';
-        row.innerHTML = `<input type="date" class="input-date"><div class="time-picker-group"><div class="time-set"><select class="ampm-start ampm-select"><option value="오전">오전</option><option value="오후">오후</option></select><select class="hour-start">${Array.from({length:12}, (_,i)=>(i+1).toString().padStart(2,'0')).map(h=>`<option>${h}</option>`)}</select> : <select class="min-start">${['00','05','10','15','20','25','30','35','40','45','50','55'].map(m=>`<option>${m}</option>`)}</select></div><span class="tilde">~</span><div class="time-set"><select class="ampm-end ampm-select"><option value="오전">오전</option><option value="오후">오후</option></select><select class="hour-end">${Array.from({length:12}, (_,i)=>(i+1).toString().padStart(2,'0')).map(h=>`<option>${h}</option>`)}</select> : <select class="min-end">${['00','05','10','15','20','25','30','35','40','45','50','55'].map(m=>`<option>${m}</option>`)}</select></div></div><button type="button" onclick="this.parentElement.remove()" style="background:#ff6b6b; color:white; border:none; border-radius:6px; width:30px; height:30px; cursor:pointer;">-</button>`;
+        const hours = Array.from({length:12}, (_,i)=>(i+1).toString().padStart(2,'0')).map(h => `<option value="${h}">${h}</option>`).join('');
+        const mins = ['00','05','10','15','20','25','30','35','40','45','50','55'].map(m => `<option value="${m}">${m}</option>`).join('');
+
+        row.innerHTML = `
+            <input type="date" class="input-date">
+            <div class="time-picker-group">
+                <div class="time-set">
+                    <select class="ampm-start ampm-select"><option value="오전">오전</option><option value="오후">오후</option></select>
+                    <select class="hour-start">${hours}</select> : <select class="min-start">${mins}</select>
+                </div>
+                <span class="tilde">~</span>
+                <div class="time-set">
+                    <select class="ampm-end ampm-select"><option value="오전">오전</option><option value="오후">오후</option></select>
+                    <select class="hour-end">${hours}</select> : <select class="min-end">${mins}</select>
+                </div>
+            </div>
+            <button type="button" class="btn-remove-row" style="background:#ff6b6b; color:white; border:none; border-radius:6px; width:30px; height:30px; cursor:pointer;">-</button>
+        `;
+        row.querySelector('.btn-remove-row').onclick = () => row.remove();
         scheduleContainer.appendChild(row);
     }
     addScheduleRow();
@@ -219,25 +237,20 @@
         const client = document.getElementById('client').value;
         const requestClient = document.getElementById('requestClient').value.trim();
         const role = document.getElementById('roleSelect').value === 'direct' ? document.getElementById('roleInputDirect').value : document.getElementById('roleSelect').value;
-        const noteValue = document.getElementById('note').value;
-        const adminNoteValue = document.getElementById('adminNote').value;
-
+        
         if (!name || !client || !requestClient || !role) return alert("필수 항목을 모두 입력해주세요.");
+        
         btn.disabled = true; btn.innerText = "처리 중...";
 
         try {
             const classHours = Number(document.getElementById('classHours').value) || 0;
-            const adminHours = Number(document.getElementById('adminHours').value) || 0;
             const hourlyRate = Number(document.getElementById('hourlyRate').value.replace(/,/g,'')) || 0;
-            const originalFee = Number(document.getElementById('originalFee').value.replace(/,/g,'')) || 0;
-            const additionalCost = Number(document.getElementById('additionalCost').value.replace(/,/g,'')) || 0;
-            const commissionRate = Number(document.getElementById('commissionRate').value) || 0;
-            
             const dateList = Array.from(document.querySelectorAll('.input-date')).map(el => el.value).filter(v => v);
             const timeList = Array.from(document.querySelectorAll('.schedule-row')).map(row => {
                 return `${row.querySelector('.ampm-start').value} ${row.querySelector('.hour-start').value}:${row.querySelector('.min-start').value} ~ ${row.querySelector('.ampm-end').value} ${row.querySelector('.hour-end').value}:${row.querySelector('.min-end').value}`;
             });
 
+            // 1. Firestore 저장 (먼저 실행)
             await addDoc(collection(db, "assignments"), {
                 teacherName: name, teacherEmail: selectedEmail, phone: phone,
                 client: client, requestClient: requestClient,
@@ -245,18 +258,39 @@
                 subject: document.getElementById('subject').value || "-",
                 role: role, date: dateList.join(', '), time: timeList.join(', '),
                 classHours: classHours, 
-                adminHours: adminHours,
-                hourlyRate: hourlyRate, originalFee: originalFee,
-                additionalCost: additionalCost, commissionRate: commissionRate, 
-                serviceFee: Math.floor((classHours * hourlyRate) * (commissionRate / 100)),
-                note: noteValue, 
-                adminNote: adminNoteValue,
+                adminHours: Number(document.getElementById('adminHours').value) || 0,
+                hourlyRate: hourlyRate, 
+                originalFee: Number(document.getElementById('originalFee').value.replace(/,/g,'')) || 0,
+                additionalCost: Number(document.getElementById('additionalCost').value.replace(/,/g,'')) || 0,
+                commissionRate: Number(document.getElementById('commissionRate').value) || 0, 
+                serviceFee: Math.floor((classHours * hourlyRate) * ((Number(document.getElementById('commissionRate').value) || 0) / 100)),
+                note: document.getElementById('note').value, 
+                adminNote: document.getElementById('adminNote').value,
                 status: "배정완료", isFinished: false, isPaidTeacher: false, isPaidService: false, createdAt: new Date()
             });
 
-            await emailjs.send('service_6f7u7om', 'template_05mv50b', { teacherEmail: selectedEmail, teacherName: name, client: client, date: dateList.join(', '), subject: document.getElementById('subject').value || "강의 배정 알림" });
-            alert(name + " 강사님 배정이 완료되었습니다!"); location.reload();
-        } catch (e) { alert("오류 발생: " + e.message); btn.disabled = false; }
+            // 2. EmailJS 발송 (실패해도 진행되도록 별도 try-catch)
+            try {
+                await emailjs.send('service_6f7u7om', 'template_05mv50b', { 
+                    teacherEmail: selectedEmail, 
+                    teacherName: name, 
+                    client: client, 
+                    date: dateList.join(', '), 
+                    subject: document.getElementById('subject').value || "강의 배정 알림" 
+                });
+            } catch (mailErr) {
+                console.warn("메일 발송 실패 (템플릿 확인 필요):", mailErr);
+            }
+
+            // 3. 무조건 성공 알림 및 리로드
+            alert(name + " 강사님 배정이 완료되었습니다!"); 
+            location.reload();
+
+        } catch (e) { 
+            console.error("데이터 저장 에러:", e);
+            alert("오류 발생: " + e.message); 
+            btn.disabled = false; btn.innerText = "강의 배정하기";
+        }
     };
 </script>
 </body>
