@@ -25,6 +25,32 @@
         .btn-back { background-color: #0056b3; }
         .btn-back:hover { background-color: #004494; }
 
+        /* 필터 및 정렬 영역 스타일 */
+        .filter-container {
+            display: flex;
+            gap: 15px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 1px solid #eef0f2;
+        }
+        .filter-group { display: flex; align-items: center; gap: 8px; }
+        .filter-group label { font-weight: 700; font-size: 14px; color: #555; }
+        .filter-select, .filter-input {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            outline: none;
+            background-color: white;
+            min-width: 150px;
+        }
+        .filter-input { min-width: 200px; }
+        .filter-select:focus, .filter-input:focus { border-color: #0056b3; box-shadow: 0 0 0 2px rgba(0,86,179,0.05); }
+
         .table-responsive {
             width: 100%;
             overflow-x: auto;
@@ -52,6 +78,10 @@
             .header { flex-direction: column; align-items: flex-start; }
             .header-btn-group { width: 100%; justify-content: space-between; margin-top: 10px; }
             .btn-header { flex: 1; text-align: center; }
+            .filter-container { flex-direction: column; align-items: stretch; }
+            .filter-group { flex-direction: column; align-items: flex-start; }
+            .filter-select, .filter-input { width: 100%; box-sizing: border-box; }
+            .filter-group[style*="margin-left: auto"] { margin-left: 0 !important; }
         }
     </style>
 </head>
@@ -67,6 +97,37 @@
         <div class="header-btn-group">
             <a href="status.html" class="btn-header btn-status">📋 강사배정현황</a>
             <a href="admin.html" class="btn-header btn-back">강의 배정 페이지로</a>
+        </div>
+    </div>
+
+    <div class="filter-container">
+        <div class="filter-group">
+            <label>📅 가입날짜:</label>
+            <select id="dateSort" class="filter-select">
+                <option value="desc">최신순 (내림차순)</option>
+                <option value="asc">과거순 (오름차순)</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>👤 이름순:</label>
+            <select id="nameSort" class="filter-select">
+                <option value="none">정렬 안함</option>
+                <option value="asc">가나다순 (A-Z)</option>
+                <option value="desc">역순 (Z-A)</option>
+            </select>
+        </div>
+        
+        <div style="margin-left: auto; display: flex; gap: 15px; flex-wrap: wrap;">
+            <div class="filter-group">
+                <label>🔍 상세지역 검색:</label>
+                <input type="text" id="regionKeyword" class="filter-input" placeholder="예: 서울, 경기">
+            </div>
+            <div class="filter-group">
+                <label>📍 지역 필터:</label>
+                <select id="regionSelect" class="filter-select">
+                    <option value="all">전체 지역보기</option>
+                </select>
+            </div>
         </div>
     </div>
 
@@ -116,42 +177,106 @@
     }
 
     const teacherTableBody = document.getElementById('teacherTableBody');
+    const regionSelect = document.getElementById('regionSelect');
+    const regionKeyword = document.getElementById('regionKeyword');
+    const dateSort = document.getElementById('dateSort');
+    const nameSort = document.getElementById('nameSort');
 
-    const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
+    let allTeachers = []; 
 
-    onSnapshot(q, (snapshot) => {
-        teacherTableBody.innerHTML = '';
-
-        const teachers = [];
-        snapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            if (data.email !== "help@edumaker.kr") {
-                teachers.push({ id: docSnap.id, ...data });
-            }
+    function updateRegionDropdown(teachers) {
+        const regions = new Set();
+        teachers.forEach(t => {
+            if (t.region) regions.add(t.region.trim());
         });
+        const currentVal = regionSelect.value;
+        regionSelect.innerHTML = '<option value="all">전체 지역보기</option>';
+        Array.from(regions).sort().forEach(region => {
+            const option = document.createElement('option');
+            option.value = region;
+            option.textContent = region;
+            regionSelect.appendChild(option);
+        });
+        regionSelect.value = currentVal;
+    }
 
-        if (teachers.length === 0) {
-            teacherTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:50px;">등록된 강사가 없습니다.</td></tr>`;
+    function processAndRender() {
+        let filtered = [...allTeachers];
+
+        const keyword = regionKeyword.value.trim().toLowerCase();
+        if (keyword) {
+            filtered = filtered.filter(teacher => 
+                (teacher.region || '').toLowerCase().includes(keyword)
+            );
+        }
+
+        const selectedRegion = regionSelect.value;
+        if (selectedRegion !== "all") {
+            filtered = filtered.filter(teacher => 
+                (teacher.region || '').trim() === selectedRegion
+            );
+        }
+
+        if (nameSort.value !== "none") {
+            filtered.sort((a, b) => {
+                const valA = String(a.name || '');
+                const valB = String(b.name || '');
+                return nameSort.value === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+            });
+        } else {
+            filtered.sort((a, b) => {
+                const timeA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+                const timeB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+                return dateSort.value === 'asc' ? timeA - timeB : timeB - timeA;
+            });
+        }
+
+        teacherTableBody.innerHTML = '';
+        if (filtered.length === 0) {
+            teacherTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:50px;">조건에 맞는 강사가 없습니다.</td></tr>`;
             return;
         }
 
-        teachers.forEach((data, index) => {
-            const virtualNo = teachers.length - index;
-
+        filtered.forEach((teacher, index) => {
+            const virtualNo = filtered.length - index;
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td class="col-num">${virtualNo}</td>
-                <td class="col-date">${formatDate(data.createdAt)}</td>
-                <td style="font-weight:700;">${String(data.name || '-')}</td>
-                <td>${String(data.phone || '-')}</td>
-                <td>${String(data.email || '-')}</td>
-                <td>${String(data.region || '-')}</td>
+                <td class="col-date">${formatDate(teacher.createdAt)}</td>
+                <td style="font-weight:700;">${String(teacher.name || '-')}</td>
+                <td>${String(teacher.phone || '-')}</td>
+                <td>${String(teacher.email || '-')}</td>
+                <td>${String(teacher.region || '-')}</td>
                 <td style="text-align: center;">
-                    <button class="btn-delete" onclick="deleteTeacher('${data.id}', '${data.name}')">삭제</button>
+                    <button class="btn-delete" onclick="deleteTeacher('${teacher.id}', '${teacher.name}')">삭제</button>
                 </td>
             `;
             teacherTableBody.appendChild(tr);
         });
+    }
+
+    const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+        allTeachers = [];
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            if (data.email !== "help@edumaker.kr") {
+                allTeachers.push({ id: docSnap.id, ...data });
+            }
+        });
+        updateRegionDropdown(allTeachers);
+        processAndRender();
+    });
+
+    regionKeyword.addEventListener('input', processAndRender);
+    regionSelect.addEventListener('change', processAndRender);
+    dateSort.addEventListener('change', () => {
+        if(dateSort.value !== "none") nameSort.value = "none";
+        processAndRender();
+    });
+    nameSort.addEventListener('change', () => {
+        if(nameSort.value !== "none") dateSort.value = "none";
+        processAndRender();
     });
 
     window.deleteTeacher = async function(id, name) {
