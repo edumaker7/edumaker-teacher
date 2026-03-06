@@ -152,8 +152,8 @@
     <button class="btn-assign" id="assignBtn">강의 배정하기</button>
     
     <div class="admin-footer-buttons">
-        <a href="status.html" class="btn-status-link">📋 배정 현황 확인</a>
-        <a href="teacher_list.html" class="btn-list-link">👥 강사 목록 관리</a>
+        <a href="status.html" target="_blank" class="btn-status-link">📋 배정 현황 확인</a>
+        <a href="teacher_list.html" class="btn-list-link">👥 강사 목록 관리</a>s
     </div>
 </div>
 
@@ -250,7 +250,6 @@
                 return `${row.querySelector('.ampm-start').value} ${row.querySelector('.hour-start').value}:${row.querySelector('.min-start').value} ~ ${row.querySelector('.ampm-end').value} ${row.querySelector('.hour-end').value}:${row.querySelector('.min-end').value}`;
             });
 
-            // 1. Firestore 저장 (먼저 실행)
             await addDoc(collection(db, "assignments"), {
                 teacherName: name, teacherEmail: selectedEmail, phone: phone,
                 client: client, requestClient: requestClient,
@@ -269,7 +268,6 @@
                 status: "배정완료", isFinished: false, isPaidTeacher: false, isPaidService: false, createdAt: new Date()
             });
 
-            // 2. EmailJS 발송 (실패해도 진행되도록 별도 try-catch)
             try {
                 await emailjs.send('service_6f7u7om', 'template_05mv50b', { 
                     teacherEmail: selectedEmail, 
@@ -282,7 +280,6 @@
                 console.warn("메일 발송 실패 (템플릿 확인 필요):", mailErr);
             }
 
-            // 3. 무조건 성공 알림 및 리로드
             alert(name + " 강사님 배정이 완료되었습니다!"); 
             location.reload();
 
