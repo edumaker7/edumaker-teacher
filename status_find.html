@@ -48,7 +48,8 @@
         .note-container { 
             font-size: 12px; color: #444; max-height: 110px; overflow-y: auto; 
             text-align: left !important; line-height: 1.6; padding: 5px 8px;
-            white-space: pre-line; word-break: break-all;
+            white-space: pre-wrap;
+            word-break: break-all;
             background-color: transparent !important;
             border: 1px solid rgba(0,0,0,0.06); border-radius: 4px; display: block;
         }
@@ -62,6 +63,7 @@
             font-weight: 600;
             font-size: 11px;
             border-radius: 4px;
+            white-space: pre-wrap;
         }
 
         .note-container::-webkit-scrollbar { width: 4px; }
@@ -202,10 +204,10 @@
             const serCheckHtml = (fee > 0) ? `<label><input type="checkbox" ${d.isPaidService ? 'checked' : ''} onchange="updatePayStatus('${item.id}', 'isPaidService', this.checked)"> 이용료확인</label>` : `<span style="color:#aaa; font-size:10px;">(이용료 없음)</span>`;
 
             let finalNoteHtml = `<div class="note-container">`;
-            finalNoteHtml += (d.note && d.note.trim()) ? d.note.trim() : '-';
+            finalNoteHtml += (d.note && d.note.toString().trim()) ? d.note.toString().trim() : '-';
             
-            if (d.adminNote && d.adminNote.trim()) {
-                finalNoteHtml += `<div class="admin-note-section">${d.adminNote.trim()}</div>`;
+            if (d.adminNote && d.adminNote.toString().trim()) {
+                finalNoteHtml += `<div class="admin-note-section">${d.adminNote.toString().trim()}</div>`;
             }
             finalNoteHtml += `</div>`;
 

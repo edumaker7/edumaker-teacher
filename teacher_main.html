@@ -7,7 +7,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Pretendard', sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
-        /* ✅ 상단 파란색 배경을 초록색(#39B54A)으로 변경 */
         .header { background-color: #39B54A; color: white; padding: 20px; text-align: center; }
         .container { max-width: 900px; margin: 20px auto; padding: 0 20px; }
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
@@ -60,7 +59,17 @@
         .sc-date { font-weight: bold; color: #39B54A; }
         .divider { border-top: 1px dashed #ddd; margin: 8px 0; }
         .total-pay-detail { color: #d93025; font-weight: bold; font-size: 1.1em; margin-top: 8px; display: block; }
-        .note-box { padding: 12px; margin-top: 8px; font-size: 13.5px; border-radius: 6px; line-height: 1.6; word-break: break-all; }
+
+        .note-box { 
+            padding: 12px; 
+            margin-top: 8px; 
+            font-size: 13.5px; 
+            border-radius: 6px; 
+            line-height: 1.6; 
+            word-break: break-all; 
+            white-space: pre-wrap;
+        }
+
         .pay-status-row { display: flex; gap: 6px; margin-top: 12px; }
         .status-box { flex: 1; padding: 8px 4px; text-align: center; border-radius: 6px; font-weight: bold; font-size: 11px; border: 1px solid rgba(0,0,0,0.1); }
         .status-waiting { background-color: #d4edda; color: #155724; }
@@ -243,7 +252,7 @@
                         <div class="divider" style="margin: 10px 0;"></div>
                         <p class="total-pay-detail"><b>💵 총 강사료</b> : &nbsp;<span>${totalGrossPay.toLocaleString()}원</span></p>
                     </div>
-                    ${data.note ? `<div class="note-box ${getHl('note')}" style="background:#fef9e7; border-left:4px solid #f1c40f; color:#666;"><b>📝 비고:</b> &nbsp;${data.note.replace(/\n/g, '<br>')}</div>` : ''}
+                    ${data.note ? `<div class="note-box ${getHl('note')}" style="background:#fef9e7; border-left:4px solid #f1c40f; color:#666;"><b>📝 비고:</b><br>${data.note}</div>` : ''}
                     <div class="pay-status-row">${lectureStatusBox}${serviceStatusBox}</div>
                     ${isConfirmed ? `<span class="confirmed-msg">👍 확인 완료됨</span>` : `<button class="check-btn" onclick="confirmAssignment('${data.id}')">${showUpd ? '변경된 강의내용 확인하기' : '강의 배정 확인하기'}</button>`}`;
 
